@@ -83,7 +83,6 @@ while True:
                     num_empty_in_a_row += 1
                 else:
                     num_empty_in_a_row = 0
-                    print(boxes)
                     cv2.rectangle(frame, (boxes[0][0], boxes[0][1]), (boxes[0][0]+boxes[0][2], boxes[0][1]+boxes[0][3]), (0, 255, 0), 2)
 
                 # cv2.imshow("Image", frame)
