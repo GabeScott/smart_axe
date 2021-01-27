@@ -67,7 +67,7 @@ while True:
         if num_detected_in_a_row == MIN_DETECT_FRAMES:
             transformed_points = transform_image(boxes[0][0], boxes[0][1], boxes[0][2], boxes[0][3], frame)
             print("Detected at: ("+str(transformed_points[0][0][0]) + ", " + str(transformed_points[0][0][1]) + ")")
-            cv2.imwrite("test-rotated"+str(num_detected)+".png", frame)
+            cv2.imwrite("detected"+str(num_detected)+".png", frame)
             num_detected += 1
             num_detected_in_a_row = 0
 
@@ -84,14 +84,14 @@ while True:
                     print(boxes)
                     cv2.rectangle(frame, (boxes[0][0], boxes[0][1]), (boxes[0][0]+boxes[0][2], boxes[0][1]+boxes[0][3]), (0, 255, 0), 2)
 
-                cv2.imshow("Image", frame)
-                if cv2.waitKey(1) & 0xFF == ord('q'):
-                    break
+                # cv2.imshow("Image", frame)
+                # if cv2.waitKey(1) & 0xFF == ord('q'):
+                #     break
 
             num_empty_in_a_row = 0
     else:
         num_detected_in_a_row = 0
 
-    cv2.imshow("Image", frame)        
-    if cv2.waitKey(1) & 0xFF == ord('q'):
-        break
+    # cv2.imshow("Image", frame)        
+    # if cv2.waitKey(1) & 0xFF == ord('q'):
+    #     break
