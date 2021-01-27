@@ -24,7 +24,7 @@ DIM = (1080, 1920)
 
 DEST_COORDS = [[0,0],[703,0],[0,703],[703,703]]
 
-cap = cv2.VideoCapture('test.mp4')
+cap = cv2.VideoCapture(0)
 cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
 cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
 
