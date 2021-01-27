@@ -48,6 +48,7 @@ def transform_image(x, y, w, h, img):
 
 
 def detect_axe(frame):
+    global use_first_url
     frame_fixed = cv2.rotate(frame, cv2.ROTATE_90_COUNTERCLOCKWISE) 
 
     frame_fixed = cv2.resize(frame_fixed, DIM, interpolation = cv2.INTER_AREA)
