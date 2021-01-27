@@ -12,12 +12,15 @@ myobj = {}
 
 #FOR 400x600
 #SOURCE_COORDS = [[105, 78], [359, 145], [93, 479], [366, 396]] 
+#DIM = (400, 600)
 
 #FOR 720x1080
 #SOURCE_COORDS = [[46, 16], [760, 234], [36, 1248], [756, 1022]] 
+#DIM = (720, 1080)
 
 #FOR 1080x1920
 SOURCE_COORDS = [[213, 255], [934, 475], [234, 1512], [953, 1277]]
+DIM = (1080, 1920)
 
 DEST_COORDS = [[0,0],[703,0],[0,703],[703,703]]
 
@@ -44,8 +47,7 @@ def transform_image(x, y, w, h, img):
 def detect_axe(frame):
     frame_fixed = cv2.rotate(frame, cv2.ROTATE_90_COUNTERCLOCKWISE) 
 
-    dim = (1080, 1920)
-    frame_fixed = cv2.resize(frame_fixed, dim, interpolation = cv2.INTER_AREA)
+    frame_fixed = cv2.resize(frame_fixed, DIM, interpolation = cv2.INTER_AREA)
 
     cv2.imwrite('test-pic.jpg', frame_fixed)
 
