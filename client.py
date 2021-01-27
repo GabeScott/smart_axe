@@ -7,8 +7,11 @@ import numpy as np
 MIN_DETECT_FRAMES=2
 MIN_EMPTY_FRAMES=3
 
-url = 'http://15.236.35.58:8000'
+url1 = 'http://15.236.35.58:8000'
+url2 = 'http://15.237.93.150:8000'
 myobj = {}
+
+use_first_url = True
 
 #FOR 400x600
 #SOURCE_COORDS = [[105, 78], [359, 145], [93, 479], [366, 396]] 
@@ -53,7 +56,12 @@ def detect_axe(frame):
 
     files = {'media': open('test-pic.jpg', 'rb')}
 
-    boxes =requests.post(url, files=files).json()['boxes']
+    if use_first_url:
+        boxes =requests.post(url1, files=files).json()['boxes']
+    else:
+        boxes =requests.post(url2, files=files).json()['boxes']
+
+    use_first_url = not use_first_url
 
     return boxes, frame_fixed
 
