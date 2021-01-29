@@ -7,7 +7,7 @@ import numpy as np
 MIN_DETECT_FRAMES=2
 MIN_EMPTY_FRAMES=3
 
-url = 'http://opencv-server-asg-1-623c209713cf2369.elb.eu-west-3.amazonaws.com'
+url = '35.180.193.246'
 
 #FOR 480x640
 #SOURCE_COORDS = [[101, 94], [410, 164], [110, 497], [408, 417]] 
@@ -54,7 +54,7 @@ def detect_axe(frame):
     files = {'media': open('test-pic.jpg', 'rb')}
 
     boxes =requests.post(url, files=files)
-    print(boxes.text)
+
     return boxes.json()['boxes'], frame_fixed
 
 
