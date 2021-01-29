@@ -8,7 +8,6 @@ MIN_DETECT_FRAMES=2
 MIN_EMPTY_FRAMES=3
 
 url = 'http://opencv-server-asg-1-623c209713cf2369.elb.eu-west-3.amazonaws.com'
-myobj = {}
 
 #FOR 480x640
 #SOURCE_COORDS = [[101, 94], [410, 164], [110, 497], [408, 417]] 
@@ -86,14 +85,14 @@ while True:
                     num_empty_in_a_row = 0
                     cv2.rectangle(frame, (boxes[0][0], boxes[0][1]), (boxes[0][0]+boxes[0][2], boxes[0][1]+boxes[0][3]), (0, 255, 0), 2)
 
-                cv2.imshow("Image", frame)
-                if cv2.waitKey(1) & 0xFF == ord('q'):
-                    break
+                # cv2.imshow("Image", frame)
+                # if cv2.waitKey(1) & 0xFF == ord('q'):
+                #     break
 
             num_empty_in_a_row = 0
     else:
         num_detected_in_a_row = 0
 
-    cv2.imshow("Image", frame)        
-    if cv2.waitKey(1) & 0xFF == ord('q'):
-        break
+    # cv2.imshow("Image", frame)        
+    # if cv2.waitKey(1) & 0xFF == ord('q'):
+    #     break
