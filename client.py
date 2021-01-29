@@ -3,6 +3,7 @@ import base64
 import json
 import cv2
 import numpy as np
+import time
 
 MIN_DETECT_FRAMES=2
 MIN_EMPTY_FRAMES=3
@@ -58,10 +59,16 @@ def detect_axe(frame):
     return boxes.json()['boxes'], frame_fixed
 
 
+startTime = time.time()
 while True:
     ret, frame = cap.read()
 
-    boxes, frame = detect_axe(frame)
+    fpsLimit = 1
+    nowTime = time.time()
+    boxes = []
+    if (nowTime - startTime) > fpsLimit:
+        boxes, frame = detect_axe(frame)
+        startTime = time.time()
     # print(boxes)
 
     if len(boxes) > 0:
