@@ -63,7 +63,7 @@ startTime = time.time()
 while True:
     ret, frame = cap.read()
 
-    fpsLimit = 1
+    fpsLimit = .1
     nowTime = time.time()
     boxes = []
     if (nowTime - startTime) > fpsLimit:

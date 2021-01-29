@@ -3,11 +3,12 @@ import base64
 import json
 import cv2
 import numpy as np
+import time
 
 MIN_DETECT_FRAMES=2
 MIN_EMPTY_FRAMES=3
 
-url = 'http://opencv-server-asg-1-623c209713cf2369.elb.eu-west-3.amazonaws.com'
+url = 'http://35.180.193.246:80'
 
 #FOR 480x640
 #SOURCE_COORDS = [[101, 94], [410, 164], [110, 497], [408, 417]] 
@@ -23,7 +24,7 @@ DIM = (1080, 1920)
 
 DEST_COORDS = [[0,0],[703,0],[0,703],[703,703]]
 
-cap = cv2.VideoCapture('test.mp4')
+cap = cv2.VideoCapture(0)
 cap.set(cv2.CAP_PROP_FRAME_WIDTH, DIM[1])
 cap.set(cv2.CAP_PROP_FRAME_HEIGHT, DIM[0])
 
@@ -57,11 +58,19 @@ def detect_axe(frame):
     print(boxes.text)
     return boxes.json()['boxes'], frame_fixed
 
-
+startTime = time.time()
 while True:
     ret, frame = cap.read()
 
-    boxes, frame = detect_axe(frame)
+
+    fpsLimit = .1
+    nowTime = time.time()
+    boxes = []
+    if (nowTime - startTime) > fpsLimit:
+        boxes, frame = detect_axe(frame)
+        startTime = time.time()
+
+    
     # print(boxes)
 
     if len(boxes) > 0:
