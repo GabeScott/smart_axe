@@ -5,22 +5,24 @@ import cv2
 import numpy as np
 import time
 
-MIN_DETECT_FRAMES=2
+MIN_DETECT_FRAMES=1
 MIN_EMPTY_FRAMES=3
+
+DEBUG = False
 
 url = 'http://35.180.193.246:80'
 
 #FOR 480x640
-SOURCE_COORDS = [[101, 94], [410, 164], [110, 497], [408, 417]] 
-DIM = (480, 640)
+#SOURCE_COORDS = [[101, 94], [410, 164], [110, 497], [408, 417]] 
+#IM = (480, 640)
 
 #FOR 720x1080
 #SOURCE_COORDS = [[148, 185], [616, 329], [165, 997], [620, 846]] 
 #DIM = (720, 1080)
 
 #FOR 1080x1920
-#SOURCE_COORDS = [[220, 273], [923, 491], [247, 1496], [929, 1266]]
-#DIM = (1080, 1920)
+SOURCE_COORDS = [[220, 273], [923, 491], [247, 1496], [929, 1266]]
+DIM = (1080, 1920)
 
 DEST_COORDS = [[0,0],[703,0],[0,703],[703,703]]
 
@@ -31,6 +33,12 @@ cap.set(cv2.CAP_PROP_FRAME_HEIGHT, DIM[0])
 num_detected = 0
 num_detected_in_a_row = 0
 num_empty_in_a_row = 0
+
+def log_msg_and_time(msg):
+    if DEBUG:
+        print(msg)
+        print(str(time.strftime("%H:%M:%S", time.localtime(time.time()))))
+
 
 def transform_image(x, y, w, h, img):
     M = cv2.getPerspectiveTransform(np.float32(SOURCE_COORDS),np.float32(DEST_COORDS))
@@ -54,20 +62,19 @@ def detect_axe(frame):
 
     files = {'media': open('test-pic.jpg', 'rb')}
 
-    print("Sent Request")
+    log_msg_and_time("Sent Request")
     print(str(time.strftime("%H:%M:%S", time.localtime(time.time()))))
 
     boxes =requests.post(url, files=files)
 
-    print("Received Response")
-    print(str(time.strftime("%H:%M:%S", time.localtime(time.time()))))
+    log_msg_and_time("Received Response")
+
     return boxes.json()['boxes'], frame_fixed
 
 startTime = time.time()
 while True:
     ret, frame = cap.read()
-    print("Read Frame")
-    print(str(time.strftime("%H:%M:%S", time.localtime(time.time()))))
+    log_msg_and_time("Read Frame")
 
     processed = False
 
@@ -78,8 +85,7 @@ while True:
     if (nowTime - startTime) > fpsLimit:
         boxes, frame = detect_axe(frame)
         startTime = time.time()
-        print("Processed Frame")
-        print(str(time.strftime("%H:%M:%S", time.localtime(time.time()))))
+        log_msg_and_time("Processed Frame")
         processed = True
 
 
@@ -87,13 +93,11 @@ while True:
     # print(boxes)
 
     if len(boxes) > 0:
-        print("Axe Detected, waiting for min num of detections")
-        print(str(time.strftime("%H:%M:%S", time.localtime(time.time()))))
+        log_msg_and_time("Axe Detected, waiting for min num of detections")
         num_detected_in_a_row += 1
         if num_detected_in_a_row == MIN_DETECT_FRAMES:
 
-            print("Axe Detected for " + str(MIN_DETECT_FRAMES) + " Frames")
-            print(str(time.strftime("%H:%M:%S", time.localtime(time.time()))))
+            log_msg_and_time("Axe Detected for " + str(MIN_DETECT_FRAMES) + " Frames")
             
             transformed_points = transform_image(boxes[0][0], boxes[0][1], boxes[0][2], boxes[0][3], frame)
             print("Detected at: ("+str(transformed_points[0][0][0]) + ", " + str(transformed_points[0][0][1]) + ")")
@@ -102,8 +106,7 @@ while True:
             num_detected_in_a_row = 0
 
             while num_empty_in_a_row < MIN_EMPTY_FRAMES:
-                print("Waiting for min num of empty frames")
-                print(str(time.strftime("%H:%M:%S", time.localtime(time.time()))))
+                log_msg_and_time("Waiting for min num of empty frames")
                 ret, frame = cap.read()
 
                 fpsLimit = .1
@@ -115,8 +118,7 @@ while True:
                     boxes, frame = detect_axe(frame)
                     startTime = time.time()
                     processed_empty = True
-                    print("Processed Empty Frame")
-                    print(str(time.strftime("%H:%M:%S", time.localtime(time.time()))))
+                    log_msg_and_time("Processed Empty Frame")
 
                 if frame is None:
                     break
