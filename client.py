@@ -55,19 +55,19 @@ def detect_axe(frame):
     files = {'media': open('test-pic.jpg', 'rb')}
 
     print("Sent Request")
-    print(time.time())
+    print(str(time.strftime("%H:%M:%S", time.localtime(time.time()))))
 
     boxes =requests.post(url, files=files)
 
     print("Received Response")
-    print(time.time())
+    print(str(time.strftime("%H:%M:%S", time.localtime(time.time()))))
     return boxes.json()['boxes'], frame_fixed
 
 startTime = time.time()
 while True:
     ret, frame = cap.read()
     print("Read Frame")
-    print(time.time())
+    print(str(time.strftime("%H:%M:%S", time.localtime(time.time()))))
 
     processed = False
 
@@ -79,7 +79,7 @@ while True:
         boxes, frame = detect_axe(frame)
         startTime = time.time()
         print("Processed Frame")
-        print(time.time())
+        print(str(time.strftime("%H:%M:%S", time.localtime(time.time()))))
         processed = True
 
 
@@ -88,12 +88,12 @@ while True:
 
     if len(boxes) > 0:
         print("Axe Detected, waiting for min num of detections")
-        print(time.time())
+        print(str(time.strftime("%H:%M:%S", time.localtime(time.time()))))
         num_detected_in_a_row += 1
         if num_detected_in_a_row == MIN_DETECT_FRAMES:
 
             print("Axe Detected for " + str(MIN_DETECT_FRAMES) + " Frames")
-            print(time.time())
+            print(str(time.strftime("%H:%M:%S", time.localtime(time.time()))))
             
             transformed_points = transform_image(boxes[0][0], boxes[0][1], boxes[0][2], boxes[0][3], frame)
             print("Detected at: ("+str(transformed_points[0][0][0]) + ", " + str(transformed_points[0][0][1]) + ")")
@@ -103,13 +103,12 @@ while True:
 
             while num_empty_in_a_row < MIN_EMPTY_FRAMES:
                 print("Waiting for min num of empty frames")
-                print(time.time())
+                print(str(time.strftime("%H:%M:%S", time.localtime(time.time()))))
                 ret, frame = cap.read()
 
                 fpsLimit = .1
                 nowTime = time.time()
                 boxes = []
-
                 processed_empty = False
 
                 if (nowTime - startTime) > fpsLimit:
@@ -117,13 +116,13 @@ while True:
                     startTime = time.time()
                     processed_empty = True
                     print("Processed Empty Frame")
-                    print(time.time())
+                    print(str(time.strftime("%H:%M:%S", time.localtime(time.time()))))
 
-                boxes, frame = detect_axe(frame)
                 if frame is None:
                     break
                 if len(boxes) == 0:
-                    num_empty_in_a_row += 1
+                    if processed_empty:
+                        num_empty_in_a_row += 1
                 else:
                     if processed_empty:
                         num_empty_in_a_row = 0

@@ -92,7 +92,7 @@ while True:
         num_detected_in_a_row += 1
         if num_detected_in_a_row == MIN_DETECT_FRAMES:
 
-            print("Axe Detected for " str(MIN_DETECT_FRAMES) + " Frames")
+            print("Axe Detected for " + str(MIN_DETECT_FRAMES) + " Frames")
             print(time.time())
             
             transformed_points = transform_image(boxes[0][0], boxes[0][1], boxes[0][2], boxes[0][3], frame)
@@ -129,15 +129,15 @@ while True:
                         num_empty_in_a_row = 0
                         cv2.rectangle(frame, (boxes[0][0], boxes[0][1]), (boxes[0][0]+boxes[0][2], boxes[0][1]+boxes[0][3]), (0, 255, 0), 2)
 
-                # cv2.imshow("Image", frame)
-                # if cv2.waitKey(1) & 0xFF == ord('q'):
-                #     break
+                cv2.imshow("Image", frame)
+                if cv2.waitKey(1) & 0xFF == ord('q'):
+                    break
 
             num_empty_in_a_row = 0
     else:
         if processed:
             num_detected_in_a_row = 0
 
-    # cv2.imshow("Image", frame)        
-    # if cv2.waitKey(1) & 0xFF == ord('q'):
-    #     break
+    cv2.imshow("Image", frame)        
+    if cv2.waitKey(1) & 0xFF == ord('q'):
+        break
