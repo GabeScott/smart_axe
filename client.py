@@ -11,16 +11,16 @@ MIN_EMPTY_FRAMES=3
 url = 'http://35.180.193.246:80'
 
 #FOR 480x640
-#SOURCE_COORDS = [[101, 94], [410, 164], [110, 497], [408, 417]] 
-#DIM = (480, 640)
+SOURCE_COORDS = [[101, 94], [410, 164], [110, 497], [408, 417]] 
+DIM = (480, 640)
 
 #FOR 720x1080
 #SOURCE_COORDS = [[148, 185], [616, 329], [165, 997], [620, 846]] 
 #DIM = (720, 1080)
 
 #FOR 1080x1920
-SOURCE_COORDS = [[220, 273], [923, 491], [247, 1496], [929, 1266]]
-DIM = (1080, 1920)
+#SOURCE_COORDS = [[220, 273], [923, 491], [247, 1496], [929, 1266]]
+#DIM = (1080, 1920)
 
 DEST_COORDS = [[0,0],[703,0],[0,703],[703,703]]
 
@@ -66,10 +66,16 @@ while True:
     fpsLimit = .1
     nowTime = time.time()
     boxes = []
+
+    processed = False
+
     if (nowTime - startTime) > fpsLimit:
         boxes, frame = detect_axe(frame)
         startTime = time.time()
+        processed = True
     # print(boxes)
+
+
 
     if len(boxes) > 0:
         num_detected_in_a_row += 1
@@ -98,7 +104,8 @@ while True:
 
             num_empty_in_a_row = 0
     else:
-        num_detected_in_a_row = 0
+        if processed:
+            num_detected_in_a_row = 0
 
     # cv2.imshow("Image", frame)        
     # if cv2.waitKey(1) & 0xFF == ord('q'):
