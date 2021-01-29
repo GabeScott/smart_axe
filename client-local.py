@@ -129,15 +129,15 @@ while True:
                         num_empty_in_a_row = 0
                         cv2.rectangle(frame, (boxes[0][0], boxes[0][1]), (boxes[0][0]+boxes[0][2], boxes[0][1]+boxes[0][3]), (0, 255, 0), 2)
 
-                cv2.imshow("Image", frame)
-                if cv2.waitKey(1) & 0xFF == ord('q'):
-                    break
+                # cv2.imshow("Image", frame)
+                # if cv2.waitKey(1) & 0xFF == ord('q'):
+                #     break
 
             num_empty_in_a_row = 0
     else:
         if processed:
             num_detected_in_a_row = 0
 
-    cv2.imshow("Image", frame)        
-    if cv2.waitKey(1) & 0xFF == ord('q'):
-        break
+    # cv2.imshow("Image", frame)        
+    # if cv2.waitKey(1) & 0xFF == ord('q'):
+    #     break
