@@ -54,13 +54,22 @@ def detect_axe(frame):
 
     files = {'media': open('test-pic.jpg', 'rb')}
 
+    print("Sent Request")
+    print(time.time())
+
     boxes =requests.post(url, files=files)
-    print(boxes.text)
+
+    print("Received Response")
+    print(time.time())
     return boxes.json()['boxes'], frame_fixed
 
 startTime = time.time()
 while True:
     ret, frame = cap.read()
+    print("Read Frame")
+    print(time.time())
+
+    processed = False
 
 
     fpsLimit = .1
@@ -69,13 +78,23 @@ while True:
     if (nowTime - startTime) > fpsLimit:
         boxes, frame = detect_axe(frame)
         startTime = time.time()
+        print("Processed Frame")
+        print(time.time())
+        processed = True
+
 
     
     # print(boxes)
 
     if len(boxes) > 0:
+        print("Axe Detected, waiting for min num of detections")
+        print(time.time())
         num_detected_in_a_row += 1
         if num_detected_in_a_row == MIN_DETECT_FRAMES:
+
+            print("Axe Detected for " str(MIN_DETECT_FRAMES) + " Frames")
+            print(time.time())
+            
             transformed_points = transform_image(boxes[0][0], boxes[0][1], boxes[0][2], boxes[0][3], frame)
             print("Detected at: ("+str(transformed_points[0][0][0]) + ", " + str(transformed_points[0][0][1]) + ")")
             cv2.imwrite("detected"+str(num_detected)+".png", frame)
@@ -83,7 +102,22 @@ while True:
             num_detected_in_a_row = 0
 
             while num_empty_in_a_row < MIN_EMPTY_FRAMES:
+                print("Waiting for min num of empty frames")
+                print(time.time())
                 ret, frame = cap.read()
+
+                fpsLimit = .1
+                nowTime = time.time()
+                boxes = []
+
+                processed_empty = False
+
+                if (nowTime - startTime) > fpsLimit:
+                    boxes, frame = detect_axe(frame)
+                    startTime = time.time()
+                    processed_empty = True
+                    print("Processed Empty Frame")
+                    print(time.time())
 
                 boxes, frame = detect_axe(frame)
                 if frame is None:
@@ -91,8 +125,9 @@ while True:
                 if len(boxes) == 0:
                     num_empty_in_a_row += 1
                 else:
-                    num_empty_in_a_row = 0
-                    cv2.rectangle(frame, (boxes[0][0], boxes[0][1]), (boxes[0][0]+boxes[0][2], boxes[0][1]+boxes[0][3]), (0, 255, 0), 2)
+                    if processed_empty:
+                        num_empty_in_a_row = 0
+                        cv2.rectangle(frame, (boxes[0][0], boxes[0][1]), (boxes[0][0]+boxes[0][2], boxes[0][1]+boxes[0][3]), (0, 255, 0), 2)
 
                 cv2.imshow("Image", frame)
                 if cv2.waitKey(1) & 0xFF == ord('q'):
@@ -100,7 +135,8 @@ while True:
 
             num_empty_in_a_row = 0
     else:
-        num_detected_in_a_row = 0
+        if processed:
+            num_detected_in_a_row = 0
 
     cv2.imshow("Image", frame)        
     if cv2.waitKey(1) & 0xFF == ord('q'):
