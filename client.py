@@ -7,7 +7,7 @@ import numpy as np
 MIN_DETECT_FRAMES=2
 MIN_EMPTY_FRAMES=3
 
-url = '35.180.193.246'
+url = 'http://35.180.193.246:80'
 
 #FOR 480x640
 #SOURCE_COORDS = [[101, 94], [410, 164], [110, 497], [408, 417]] 
