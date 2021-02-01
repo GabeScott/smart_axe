@@ -26,6 +26,8 @@ DIM = (1080, 1920)
 
 DEST_COORDS = [[0,0],[703,0],[0,703],[703,703]]
 
+FPS_LIMIT = 30
+
 cap = cv2.VideoCapture(0)
 cap.set(cv2.CAP_PROP_FRAME_WIDTH, DIM[1])
 cap.set(cv2.CAP_PROP_FRAME_HEIGHT, DIM[0])
@@ -87,10 +89,9 @@ while True:
 
     processed = False
 
-    fpsLimit = 30
     nowTime = time.time()
     boxes = []
-    if (nowTime - startTime) > 1.0/fpsLimit:
+    if (nowTime - startTime) > 1.0/FPS_LIMIT:
         boxes, frame = detect_axe(frame)
         startTime = time.time()
         log_msg_and_time("Processed Frame")
@@ -118,12 +119,11 @@ while True:
                 log_msg_and_time("Waiting for min num of empty frames")
                 ret, frame = cap.read()
 
-                fpsLimit = 30
                 nowTime = time.time()
                 boxes = []
                 processed_empty = False
 
-                if (nowTime - startTime) > 1.0/fpsLimit:
+                if (nowTime - startTime) > 1.0/FPS_LIMIT:
                     boxes, frame = detect_axe(frame)
                     startTime = time.time()
                     processed_empty = True
