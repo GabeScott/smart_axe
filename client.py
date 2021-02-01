@@ -4,9 +4,7 @@ import json
 import cv2
 import numpy as np
 import time
-import webbrowser
 import os
-import system
 
 MIN_DETECT_FRAMES=2
 MIN_EMPTY_FRAMES=3
