@@ -5,7 +5,7 @@ import cv2
 import numpy as np
 import time
 
-MIN_DETECT_FRAMES=1
+MIN_DETECT_FRAMES=2
 MIN_EMPTY_FRAMES=3
 
 DEBUG = False
@@ -42,19 +42,15 @@ def log_msg_and_time(msg):
 
 def transform_image(x, y, w, h, img):
     M = cv2.getPerspectiveTransform(np.float32(SOURCE_COORDS),np.float32(DEST_COORDS))
-    dst = cv2.warpPerspective(img,M,(703,703))
 
     points_to_transform = np.float32([[[x,y]], [[x+w/10, y+h]]])
     transformed_points = cv2.perspectiveTransform(points_to_transform, M)
-
-    cv2.rectangle(dst, (transformed_points[0][0][0], transformed_points[0][0][1]), (transformed_points[1][0][0], transformed_points[1][0][1]), (0,255,0), 2)
 
     return transformed_points
 
 
 def detect_axe(frame):
     frame_fixed = cv2.rotate(frame, cv2.ROTATE_90_COUNTERCLOCKWISE) 
-
     frame_fixed = cv2.resize(frame_fixed, DIM, interpolation = cv2.INTER_AREA)
 
     cv2.imwrite('test-pic.jpg', frame_fixed)
@@ -62,7 +58,6 @@ def detect_axe(frame):
     files = {'media': open('test-pic.jpg', 'rb')}
 
     log_msg_and_time("Sent Request")
-    print(str(time.strftime("%H:%M:%S", time.localtime(time.time()))))
 
     boxes = requests.post(url, files=files)
 
@@ -92,11 +87,10 @@ while True:
 
     processed = False
 
-
-    fpsLimit = .1
+    fpsLimit = 30
     nowTime = time.time()
     boxes = []
-    if (nowTime - startTime) > fpsLimit:
+    if (nowTime - startTime) > 1.0/fpsLimit:
         boxes, frame = detect_axe(frame)
         startTime = time.time()
         log_msg_and_time("Processed Frame")
@@ -145,15 +139,15 @@ while True:
                         num_empty_in_a_row = 0
                         cv2.rectangle(frame, (boxes[0][0], boxes[0][1]), (boxes[0][0]+boxes[0][2], boxes[0][1]+boxes[0][3]), (0, 255, 0), 2)
 
-                cv2.imshow("Image", frame)
-                if cv2.waitKey(1) & 0xFF == ord('q'):
-                    break
+                # cv2.imshow("Image", frame)
+                # if cv2.waitKey(1) & 0xFF == ord('q'):
+                #     break
 
             num_empty_in_a_row = 0
     else:
         if processed:
             num_detected_in_a_row = 0
 
-    cv2.imshow("Image", frame)        
-    if cv2.waitKey(1) & 0xFF == ord('q'):
-        break
+    # cv2.imshow("Image", frame)        
+    # if cv2.waitKey(1) & 0xFF == ord('q'):
+    #     break
