@@ -53,7 +53,6 @@ def transform_image(x, y, w, h, img):
 
 
 def detect_axe(frame):
-    global use_first_url
     frame_fixed = cv2.rotate(frame, cv2.ROTATE_90_COUNTERCLOCKWISE) 
 
     frame_fixed = cv2.resize(frame_fixed, DIM, interpolation = cv2.INTER_AREA)
@@ -65,11 +64,26 @@ def detect_axe(frame):
     log_msg_and_time("Sent Request")
     print(str(time.strftime("%H:%M:%S", time.localtime(time.time()))))
 
-    boxes =requests.post(url, files=files)
+    boxes = requests.post(url, files=files)
 
     log_msg_and_time("Received Response")
 
     return boxes.json()['boxes'], frame_fixed
+
+
+def send_hit_to_target(box):
+    x = str(box[0])
+    y = str(box[1])
+    width = str(float(box[2]/10))
+    height = str(box[3])
+
+    url = 'http://34.227.251.88:3000/tester.html?loc=0`'+x+'`'+y+'`'+width+'`'+height
+    requests.get(url=url)
+
+    log_msg_and_time("Sent Request to Target")
+    
+
+
 
 startTime = time.time()
 while True:
@@ -88,10 +102,6 @@ while True:
         log_msg_and_time("Processed Frame")
         processed = True
 
-
-    
-    # print(boxes)
-
     if len(boxes) > 0:
         log_msg_and_time("Axe Detected, waiting for min num of detections")
         num_detected_in_a_row += 1
@@ -100,7 +110,12 @@ while True:
             log_msg_and_time("Axe Detected for " + str(MIN_DETECT_FRAMES) + " Frames")
             
             transformed_points = transform_image(boxes[0][0], boxes[0][1], boxes[0][2], boxes[0][3], frame)
-            print("Detected at: ("+str(transformed_points[0][0][0]) + ", " + str(transformed_points[0][0][1]) + ")")
+
+            print("Detected at: ("+str(transformed_points[0][0][0]) + ", " + str(transformed_points[0][0][1]) + ")", end='')
+            print("  Original Coords: ("+str(boxes[0][0])+", "+str(boxes[0][1])+")")
+
+            send_hit_to_target(boxes[0])
+
             cv2.imwrite("detected"+str(num_detected)+".png", frame)
             num_detected += 1
             num_detected_in_a_row = 0
@@ -130,15 +145,15 @@ while True:
                         num_empty_in_a_row = 0
                         cv2.rectangle(frame, (boxes[0][0], boxes[0][1]), (boxes[0][0]+boxes[0][2], boxes[0][1]+boxes[0][3]), (0, 255, 0), 2)
 
-                # cv2.imshow("Image", frame)
-                # if cv2.waitKey(1) & 0xFF == ord('q'):
-                #     break
+                cv2.imshow("Image", frame)
+                if cv2.waitKey(1) & 0xFF == ord('q'):
+                    break
 
             num_empty_in_a_row = 0
     else:
         if processed:
             num_detected_in_a_row = 0
 
-    # cv2.imshow("Image", frame)        
-    # if cv2.waitKey(1) & 0xFF == ord('q'):
-    #     break
+    cv2.imshow("Image", frame)        
+    if cv2.waitKey(1) & 0xFF == ord('q'):
+        break
