@@ -118,12 +118,12 @@ while True:
                 log_msg_and_time("Waiting for min num of empty frames")
                 ret, frame = cap.read()
 
-                fpsLimit = .1
+                fpsLimit = 30
                 nowTime = time.time()
                 boxes = []
                 processed_empty = False
 
-                if (nowTime - startTime) > fpsLimit:
+                if (nowTime - startTime) > 1.0/fpsLimit:
                     boxes, frame = detect_axe(frame)
                     startTime = time.time()
                     processed_empty = True
