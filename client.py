@@ -4,6 +4,7 @@ import json
 import cv2
 import numpy as np
 import time
+import webbrowser
 
 MIN_DETECT_FRAMES=2
 MIN_EMPTY_FRAMES=3
@@ -75,7 +76,11 @@ def send_hit_to_target(box):
     height = str(box[3])
 
     url = 'http://34.227.251.88:3000/tester.html?loc=0`'+x+'`'+y+'`'+width+'`'+height
-    response =requests.get(url=url)
+    
+    webbrowser.register('/usr/bin/chromium-browser', None)
+    webbrowser.get('chromium-browser')
+    webbrowser.open(url)
+
 
     log_msg_and_time("Sent Request to Target")
     
