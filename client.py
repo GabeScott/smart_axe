@@ -22,7 +22,7 @@ url = 'http://15.188.144.16:80'
 #DIM = (720, 1080)
 
 #FOR 1080x1920
-SOURCE_COORDS = [[298, 507], [1023, 687], [350, 1600], [994, 1395]]
+SOURCE_COORDS = [[415, 587], [1009, 712], [389, 1595], [981, 1382]]
 DIM = (1080, 1920)
 
 DEST_COORDS = [[0,0],[703,0],[0,703],[703,703]]
@@ -75,7 +75,7 @@ def send_hit_to_target(box):
     width = str(float(box[2]/10))
     height = str(box[3])
 
-    url = 'http://34.227.251.88:3000/tester.html?loc=0`'+x+'`'+y+'`'+width+'`'+height
+    url = 'http://34.227.251.88:3000/tester.html?loc=0\`'+x+'\`'+y+'\`'+width+'\`'+height
     
     # webbrowser.register('/usr/bin/chromium-browser', None)
     # webbrowser.get('chromium-browser')
