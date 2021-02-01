@@ -72,7 +72,7 @@ def detect_axe(frame):
 def send_hit_to_target(box):
     x = str(box[0])
     y = str(box[1])
-    width = str(float(box[2]/10))
+    width = str(box[2])
     height = str(box[3])
 
     url = 'http://34.227.251.88:3000/tester.html?loc=0`'+x+'`'+y+'`'+width+'`'+height
