@@ -75,7 +75,7 @@ def send_hit_to_target(box):
     width = str(float(box[2]/10))
     height = str(box[3])
 
-    url = 'http://34.227.251.88:3000/tester.html?loc=0\`'+x+'\`'+y+'\`'+width+'\`'+height
+    url = 'http://34.227.251.88:3000/tester.html?loc=0`'+x+'`'+y+'`'+width+'`'+height
     
     # webbrowser.register('/usr/bin/chromium-browser', None)
     # webbrowser.get('chromium-browser')
