@@ -21,7 +21,7 @@ url = 'http://15.188.144.16:80'
 #DIM = (720, 1080)
 
 #FOR 1080x1920
-SOURCE_COORDS = [[220, 273], [923, 491], [247, 1496], [929, 1266]]
+SOURCE_COORDS = [[289, 530], [1004, 673], [307, 1644], [982, 1386]]
 DIM = (1080, 1920)
 
 DEST_COORDS = [[0,0],[703,0],[0,703],[703,703]]
@@ -75,7 +75,7 @@ def send_hit_to_target(box):
     height = str(box[3])
 
     url = 'http://34.227.251.88:3000/tester.html?loc=0`'+x+'`'+y+'`'+width+'`'+height
-    requests.get(url=url)
+    response =requests.get(url=url)
 
     log_msg_and_time("Sent Request to Target")
     
