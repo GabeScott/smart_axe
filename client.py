@@ -81,7 +81,8 @@ def send_hit_to_target(box):
     # webbrowser.get('chromium-browser')
     # webbrowser.open(url)
 
-    os.system('sudo -upi chromium-browser ' + url)
+    # os.system('sudo -upi chromium-browser ' + url)
+    print(url)
 
 
     log_msg_and_time("Sent Request to Target")
