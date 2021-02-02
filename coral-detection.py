@@ -80,7 +80,7 @@ def detect_axe(frame):
     scores = common.output_tensor(interpreter, 2)
 
 
-    ymin, xmin, ymax, xmax = boxes[0]
+    ymin, xmin, ymax, xmax = boxes[0][0]
     xmin=np.maximum(0.0, xmin)
     ymin=np.maximum(0.0, ymin)
     xmax=np.minimum(1.0, xmax)
