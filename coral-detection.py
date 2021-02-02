@@ -70,8 +70,10 @@ def detect_axe(frame):
 
     # cv2.imwrite('test-pic.jpg', frame_fixed)
 
+    frame_fixed = cv2.cvtColor(frame_fixed, cv2.COLOR_BGR2RGB)
+
     size = common.input_size(interpreter)
-    image = Image.fromarray(frame_fixed).convert('RGB').resize(size, Image.ANTIALIAS)
+    image = Image.fromarray(frame_fixed).resize(size, Image.ANTIALIAS)
 
     image.save("CHECK_THIS_FILE.jpg")
 
