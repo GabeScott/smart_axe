@@ -77,7 +77,16 @@ def detect_axe(frame):
     common.set_input(interpreter, image)
     interpreter.invoke()
     boxes = common.output_tensor(interpreter, 0)
-    print(boxes)
+    scores = common.output_tensor(interpreter, 2)
+
+
+    ymin, xmin, ymax, xmax = boxes[i]
+    xmin=np.maximum(0.0, xmin)
+    ymin=np.maximum(0.0, ymin)
+    xmax=np.minimum(1.0, xmax)
+    ymax=np.minimum(1.0, ymax)
+
+    print([xmin, xmax, ymin, ymax])
     return boxes, frame_fixed
 
     # files = {'media': open('test-pic.jpg', 'rb')}
