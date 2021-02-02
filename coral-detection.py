@@ -11,7 +11,7 @@ import time
 MIN_DETECT_FRAMES=1
 MIN_EMPTY_FRAMES=3
 
-DEBUG = False
+DEBUG = True
 
 # url = 'http://35.180.193.246:80'
 
