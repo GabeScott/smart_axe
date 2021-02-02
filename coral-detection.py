@@ -75,7 +75,7 @@ def detect_axe(frame):
     size = common.input_size(interpreter)
     image = Image.fromarray(frame_fixed).resize(size, Image.ANTIALIAS)
 
-    image.save("CHECK_THIS_FILE.jpg")
+    # image.save("CHECK_THIS_FILE.jpg")
 
     # Run an inference
     common.set_input(interpreter, image)
@@ -83,7 +83,7 @@ def detect_axe(frame):
     boxes = common.output_tensor(interpreter, 0)
     scores = common.output_tensor(interpreter, 2)
 
-    print(scores)
+    # print(scores)
 
     for i in range(len(scores[0])):
         if scores[0][i] > .1:
