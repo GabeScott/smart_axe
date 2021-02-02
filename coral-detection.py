@@ -173,7 +173,7 @@ while True:
                 else:
                     if processed_empty:
                         num_empty_in_a_row = 0
-                        cv2.rectangle(frame, (boxes[0], boxes[1]), (boxes[0]+boxes[2], boxes[1]+boxes[3]), (0, 255, 0), 2)
+                        # cv2.rectangle(frame, (boxes[0], boxes[1]), (boxes[0]+boxes[2], boxes[1]+boxes[3]), (0, 255, 0), 2)
 
                 cv2.imshow("Image", frame)
                 if cv2.waitKey(1) & 0xFF == ord('q'):
