@@ -82,7 +82,7 @@ def detect_axe(frame):
     print(scores)
 
     for i in range(len(scores[0])):
-        if scores[0][i] > threshold:
+        if scores[0][i] > .1:
             ymin, xmin, ymax, xmax = boxes[0][i]
             xmin=np.maximum(0.0, xmin)*1080
             ymin=np.maximum(0.0, ymin)*1920
