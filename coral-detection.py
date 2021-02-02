@@ -73,6 +73,8 @@ def detect_axe(frame):
     size = common.input_size(interpreter)
     image = Image.fromarray(frame_fixed).convert('RGB').resize(size, Image.ANTIALIAS)
 
+    image.save("CHECK_THIS_FILE.jpg")
+
     # Run an inference
     common.set_input(interpreter, image)
     interpreter.invoke()
