@@ -87,7 +87,7 @@ def detect_axe(frame):
     ymax=np.minimum(1.0, ymax)
 
     print([xmin, xmax, ymin, ymax])
-    return boxes, frame_fixed
+    return [xmin, ymin, float(xmax-xmin), float(ymax-ymin)], frame_fixed
 
     # files = {'media': open('test-pic.jpg', 'rb')}
 
