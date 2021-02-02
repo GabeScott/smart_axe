@@ -1,6 +1,7 @@
 from pycoral.utils import edgetpu
 from pycoral.utils import dataset
 from pycoral.adapters import common
+from pycoral.adapters import detect
 from pycoral.adapters import classify
 from PIL import Image
 import requests
@@ -8,10 +9,10 @@ import cv2
 import numpy as np
 import time
 
-MIN_DETECT_FRAMES=1
-MIN_EMPTY_FRAMES=3
+MIN_DETECT_FRAMES=5
+MIN_EMPTY_FRAMES=10
 
-DEBUG = True
+DEBUG = False
 
 # url = 'http://35.180.193.246:80'
 
@@ -24,10 +25,12 @@ DEBUG = True
 #DIM = (720, 1080)
 
 #FOR 1080x1920
-SOURCE_COORDS = [[220, 273], [923, 491], [247, 1496], [929, 1266]]
+SOURCE_COORDS = [[407, 597], [1008, 723], [372, 1650], [980, 1438]]
 DIM = (1080, 1920)
 
 DEST_COORDS = [[0,0],[703,0],[0,703],[703,703]]
+
+FPS_LIMIT = 30
 
 cap = cv2.VideoCapture(0)
 cap.set(cv2.CAP_PROP_FRAME_WIDTH, DIM[1])
@@ -52,12 +55,9 @@ def log_msg_and_time(msg):
 
 def transform_image(x, y, w, h, img):
     M = cv2.getPerspectiveTransform(np.float32(SOURCE_COORDS),np.float32(DEST_COORDS))
-    # dst = cv2.warpPerspective(img,M,(703,703))
 
     points_to_transform = np.float32([[[x,y]], [[x+w/10, y+h]]])
     transformed_points = cv2.perspectiveTransform(points_to_transform, M)
-
-    # cv2.rectangle(dst, (transformed_points[0][0][0], transformed_points[0][0][1]), (transformed_points[1][0][0], transformed_points[1][0][1]), (0,255,0), 2)
 
     return transformed_points
 
@@ -65,47 +65,20 @@ def transform_image(x, y, w, h, img):
 def detect_axe(frame):
     global interpreter
     frame_fixed = cv2.rotate(frame, cv2.ROTATE_90_COUNTERCLOCKWISE) 
-
-    # frame_fixed = cv2.resize(frame_fixed, DIM, interpolation = cv2.INTER_AREA)
-
-    # cv2.imwrite('test-pic.jpg', frame_fixed)
-
     frame_fixed = cv2.cvtColor(frame_fixed, cv2.COLOR_BGR2RGB)
 
-    size = common.input_size(interpreter)
-    image = Image.fromarray(frame_fixed).resize(size, Image.ANTIALIAS)
+    image = Image.fromarray(frame_fixed)
 
-    # image.save("CHECK_THIS_FILE.jpg")
-
-    # Run an inference
-    common.set_input(interpreter, image)
+    _, scale = common.set_resized_input(interpreter, image.size, lambda size: image.resize(size, Image.ANTIALIAS))
     interpreter.invoke()
-    boxes = common.output_tensor(interpreter, 0)
-    scores = common.output_tensor(interpreter, 2)
+    objs = detect.get_objects(interpreter, .1, scale)
 
-    # print(scores)
+    if len(objs == 0):
+    	return [], frame_fixed
 
-    for i in range(len(scores[0])):
-        if scores[0][i] > .1:
-            ymin, xmin, ymax, xmax = boxes[0][i]
-            xmin=np.maximum(0.0, xmin)*1080
-            ymin=np.maximum(0.0, ymin)*1920
-            xmax=np.minimum(1.0, xmax)*1080
-            ymax=np.minimum(1.0, ymax)*1920
-            return [xmin, ymin, float(xmax-xmin), float(ymax-ymin)], frame_fixed
+    box = objs[0].bbox
 
-    return [], frame_fixed
-
-    # files = {'media': open('test-pic.jpg', 'rb')}
-
-    # log_msg_and_time("Sent Request")
-    # print(str(time.strftime("%H:%M:%S", time.localtime(time.time()))))
-
-    # boxes = requests.post(url, files=files)
-
-    # log_msg_and_time("Received Response")
-
-    # return boxes.json()['boxes'], frame_fixed
+    return [box.xmin, box.ymin, box.xmax-box.xmin, box.ymax-box.ymin], frame_fixed
 
 
 def send_hit_to_target(box):
@@ -115,7 +88,7 @@ def send_hit_to_target(box):
     height = str(box[3])
 
     url = 'http://34.227.251.88:3000/tester.html?loc=0`'+x+'`'+y+'`'+width+'`'+height
-    requests.get(url=url)
+    print(url)
 
     log_msg_and_time("Sent Request to Target")
     
@@ -130,10 +103,9 @@ while True:
     processed = False
 
 
-    fpsLimit = .1
     nowTime = time.time()
     boxes = []
-    if (nowTime - startTime) > fpsLimit:
+    if (nowTime - startTime) > 1.0/FPS_LIMIT:
         boxes, frame = detect_axe(frame)
         startTime = time.time()
         log_msg_and_time("Processed Frame")
@@ -161,12 +133,11 @@ while True:
                 log_msg_and_time("Waiting for min num of empty frames")
                 ret, frame = cap.read()
 
-                fpsLimit = .1
                 nowTime = time.time()
                 boxes = []
                 processed_empty = False
 
-                if (nowTime - startTime) > fpsLimit:
+                if (nowTime - startTime) > 1.0/FPS_LIMIT:
                     boxes, frame = detect_axe(frame)
                     startTime = time.time()
                     processed_empty = True
@@ -180,17 +151,8 @@ while True:
                 else:
                     if processed_empty:
                         num_empty_in_a_row = 0
-                        # cv2.rectangle(frame, (boxes[0], boxes[1]), (boxes[0]+boxes[2], boxes[1]+boxes[3]), (0, 255, 0), 2)
-
-                # cv2.imshow("Image", frame)
-                # if cv2.waitKey(1) & 0xFF == ord('q'):
-                #     break
 
             num_empty_in_a_row = 0
     else:
         if processed:
             num_detected_in_a_row = 0
-
-    # cv2.imshow("Image", frame)        
-    # if cv2.waitKey(1) & 0xFF == ord('q'):
-    #     break
