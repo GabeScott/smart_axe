@@ -139,12 +139,12 @@ while True:
 
             log_msg_and_time("Axe Detected for " + str(MIN_DETECT_FRAMES) + " Frames")
             
-            transformed_points = transform_image(boxes[0][0], boxes[0][1], boxes[0][2], boxes[0][3], frame)
+            transformed_points = transform_image(boxes[0], boxes[1], boxes[2], boxes[3], frame)
 
             print("Detected at: ("+str(transformed_points[0][0][0]) + ", " + str(transformed_points[0][0][1]) + ")", end='')
-            print("  Original Coords: ("+str(boxes[0][0])+", "+str(boxes[0][1])+")")
+            print("  Original Coords: ("+str(boxes[0])+", "+str(boxes[1])+")")
 
-            send_hit_to_target(boxes[0])
+            send_hit_to_target(boxes)
 
             cv2.imwrite("detected"+str(num_detected)+".png", frame)
             num_detected += 1
@@ -173,7 +173,7 @@ while True:
                 else:
                     if processed_empty:
                         num_empty_in_a_row = 0
-                        cv2.rectangle(frame, (boxes[0][0], boxes[0][1]), (boxes[0][0]+boxes[0][2], boxes[0][1]+boxes[0][3]), (0, 255, 0), 2)
+                        cv2.rectangle(frame, (boxes[0], boxes[1]), (boxes[0]+boxes[2], boxes[1]+boxes[3]), (0, 255, 0), 2)
 
                 cv2.imshow("Image", frame)
                 if cv2.waitKey(1) & 0xFF == ord('q'):
