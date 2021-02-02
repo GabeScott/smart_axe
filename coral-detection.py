@@ -79,6 +79,10 @@ def detect_axe(frame):
     boxes = common.output_tensor(interpreter, 0)
     scores = common.output_tensor(interpreter, 2)
 
+    print(scores)
+
+    
+
 
     ymin, xmin, ymax, xmax = boxes[0][0]
     xmin=np.maximum(0.0, xmin)*1080
@@ -175,15 +179,15 @@ while True:
                         num_empty_in_a_row = 0
                         # cv2.rectangle(frame, (boxes[0], boxes[1]), (boxes[0]+boxes[2], boxes[1]+boxes[3]), (0, 255, 0), 2)
 
-                cv2.imshow("Image", frame)
-                if cv2.waitKey(1) & 0xFF == ord('q'):
-                    break
+                # cv2.imshow("Image", frame)
+                # if cv2.waitKey(1) & 0xFF == ord('q'):
+                #     break
 
             num_empty_in_a_row = 0
     else:
         if processed:
             num_detected_in_a_row = 0
 
-    cv2.imshow("Image", frame)        
-    if cv2.waitKey(1) & 0xFF == ord('q'):
-        break
+    # cv2.imshow("Image", frame)        
+    # if cv2.waitKey(1) & 0xFF == ord('q'):
+    #     break
