@@ -63,7 +63,7 @@ def transform_image(x, y, w, h, img):
 
 
 def detect_axe(frame):
-	global interpreter
+    global interpreter
     frame_fixed = cv2.rotate(frame, cv2.ROTATE_90_COUNTERCLOCKWISE) 
 
     # frame_fixed = cv2.resize(frame_fixed, DIM, interpolation = cv2.INTER_AREA)
@@ -71,14 +71,14 @@ def detect_axe(frame):
     # cv2.imwrite('test-pic.jpg', frame_fixed)
 
     size = common.input_size(interpreter)
-	image = Image.fromarray(frame_fixed).convert('RGB').resize(size, Image.ANTIALIAS)
+    image = Image.fromarray(frame_fixed).convert('RGB').resize(size, Image.ANTIALIAS)
 
-	# Run an inference
-	common.set_input(interpreter, image)
-	interpreter.invoke()
-	boxes = common.output_tensor(interpreter, 0)
-	print(boxes)
-	return boxes, frame_fixed
+    # Run an inference
+    common.set_input(interpreter, image)
+    interpreter.invoke()
+    boxes = common.output_tensor(interpreter, 0)
+    print(boxes)
+    return boxes, frame_fixed
 
     # files = {'media': open('test-pic.jpg', 'rb')}
 
