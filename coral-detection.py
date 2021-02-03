@@ -83,6 +83,8 @@ def detect_axe(frame):
 			score = obj.score
 			best_obj = obj
 
+    print("Detection Score:" + str(score))
+
     box = best_obj.bbox
 
     return [box.xmin, box.ymin, box.xmax-box.xmin, box.ymax-box.ymin], frame_fixed
