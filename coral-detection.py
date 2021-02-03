@@ -1,7 +1,6 @@
 from pycoral.utils import edgetpu
 from pycoral.adapters import common
 from pycoral.adapters import detect
-from pycoral.utils.edgetpu import run_inference
 from socketIO_client_nexus import SocketIO
 from PIL import Image
 import cv2
@@ -76,13 +75,12 @@ def detect_axe(frame):
     interpreter = edgetpu.make_interpreter(model_file)
     interpreter.allocate_tensors()
 
-    input_tensor = common.set_resized_input(interpreter, image.size, lambda size: image.resize(size, Image.ANTIALIAS))
-    run_inference(interpreter, input_tensor)
-    #interpreter.invoke()
-    objs = detect.get_objects(interpreter, 0.001)
+    _, scale = common.set_resized_input(interpreter, image.size, lambda size: image.resize(size, Image.ANTIALIAS))
+    print(scale)
+    interpreter.invoke()
+    objs = detect.get_objects(interpreter, 0.001, scale)
 
     print(objs)
-
 
     if len(objs) == 0:
         return [], frame_fixed
