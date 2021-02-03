@@ -65,7 +65,7 @@ def transform_image(x, y, w, h, img):
 def detect_axe(frame):
     frame_fixed = cv2.rotate(frame, cv2.ROTATE_90_COUNTERCLOCKWISE) 
     #frame_fixed = cv2.cvtColor(frame_fixed, cv2.COLOR_BGR2RGB)
-    cv2.imwrite("CHECK_THIS.jpg")
+    cv2.imwrite("CHECK_THIS.jpg", frame_fixed)
     image = Image.open("CHECK_THIS.jpg")
 
     model_file = 'smart_axe.tflite'
