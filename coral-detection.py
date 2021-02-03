@@ -76,7 +76,7 @@ def detect_axe(frame):
     _, scale = common.set_resized_input(interpreter, image.size, lambda size: image.resize(size, Image.ANTIALIAS))
     interpreter.invoke()
     objs = detect.get_objects(interpreter, 0.001, scale)
-
+    print(objs)
     if len(objs) == 0:
         return [], frame_fixed
 
