@@ -63,11 +63,17 @@ def transform_image(x, y, w, h, img):
 
 
 def detect_axe(frame):
-    global interpreter
     frame_fixed = cv2.rotate(frame, cv2.ROTATE_90_COUNTERCLOCKWISE) 
     frame_fixed = cv2.cvtColor(frame_fixed, cv2.COLOR_BGR2RGB)
 
     image = Image.fromarray(frame_fixed)
+
+    image.save("CHECK_THIS.jpg")
+
+    model_file = 'smart_axe.tflite'
+
+    interpreter = edgetpu.make_interpreter(model_file)
+    interpreter.allocate_tensors()
 
     _, scale = common.set_resized_input(interpreter, image.size, lambda size: image.resize(size, Image.ANTIALIAS))
     interpreter.invoke()
