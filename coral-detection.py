@@ -1,10 +1,8 @@
 from pycoral.utils import edgetpu
-from pycoral.utils import dataset
 from pycoral.adapters import common
 from pycoral.adapters import detect
-from pycoral.adapters import classify
+from socketIO_client_nexus import SocketIO
 from PIL import Image
-import requests
 import cv2
 import numpy as np
 import time
@@ -13,6 +11,8 @@ MIN_DETECT_FRAMES=5
 MIN_EMPTY_FRAMES=10
 
 DEBUG = False
+
+LANE_INDEX = 0
 
 # url = 'http://35.180.193.246:80'
 
@@ -76,7 +76,14 @@ def detect_axe(frame):
     if len(objs == 0):
     	return [], frame_fixed
 
-    box = objs[0].bbox
+	best_obj = None
+	score=-1
+	for obj in objs:
+		if obj.score > score:
+			score = obj.score
+			best_obj = obj
+
+    box = best_obj.bbox
 
     return [box.xmin, box.ymin, box.xmax-box.xmin, box.ymax-box.ymin], frame_fixed
 
@@ -87,10 +94,16 @@ def send_hit_to_target(box):
     width = str(float(box[2]/10))
     height = str(box[3])
 
-    url = 'http://34.227.251.88:3000/tester.html?loc=0`'+x+'`'+y+'`'+width+'`'+height
-    print(url)
+    data = {'lane':LANE_INDEX,
+            'x':x,
+            'y':y,
+            'width':width,
+            'height':height}
 
-    log_msg_and_time("Sent Request to Target")
+    sio = SocketIO('http://34.227.251.88', 3000)
+    sio.emit('test hit', data)
+
+    log_msg_and_time("Sent Hit to Target")
     
 
 
