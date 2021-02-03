@@ -64,11 +64,9 @@ def transform_image(x, y, w, h, img):
 
 def detect_axe(frame):
     frame_fixed = cv2.rotate(frame, cv2.ROTATE_90_COUNTERCLOCKWISE) 
-    frame_fixed = cv2.cvtColor(frame_fixed, cv2.COLOR_BGR2RGB)
-
-    image = Image.fromarray(frame_fixed)
-
-    image.save("CHECK_THIS.jpg")
+    #frame_fixed = cv2.cvtColor(frame_fixed, cv2.COLOR_BGR2RGB)
+    cv2.imwrite("CHECK_THIS.jpg")
+    image = Image.open("CHECK_THIS.jpg")
 
     model_file = 'smart_axe.tflite'
 
@@ -76,11 +74,8 @@ def detect_axe(frame):
     interpreter.allocate_tensors()
 
     _, scale = common.set_resized_input(interpreter, image.size, lambda size: image.resize(size, Image.ANTIALIAS))
-    print(scale)
     interpreter.invoke()
     objs = detect.get_objects(interpreter, 0.001, scale)
-
-    print(objs)
 
     if len(objs) == 0:
         return [], frame_fixed
