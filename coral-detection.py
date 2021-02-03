@@ -74,14 +74,14 @@ def detect_axe(frame):
     objs = detect.get_objects(interpreter, .4, scale)
 
     if len(objs == 0):
-    	return [], frame_fixed
+        return [], frame_fixed
 
-	best_obj = None
-	score=-1
-	for obj in objs:
-		if obj.score > score:
-			score = obj.score
-			best_obj = obj
+    best_obj = None
+    score=-1
+    for obj in objs:
+        if obj.score > score:
+            score = obj.score
+            best_obj = obj
 
     print("Detection Score:" + str(score))
 
