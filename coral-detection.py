@@ -68,7 +68,7 @@ def detect_axe(frame):
     cv2.imwrite("CHECK_THIS.jpg", frame_fixed)
     image = Image.open("CHECK_THIS.jpg")
 
-    model_file = 'smart_axe.tflite'
+    model_file = 'test-model.tflite'
 
     interpreter = edgetpu.make_interpreter(model_file)
     interpreter.allocate_tensors()
