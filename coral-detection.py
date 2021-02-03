@@ -73,7 +73,7 @@ def detect_axe(frame):
     interpreter.invoke()
     objs = detect.get_objects(interpreter, .4, scale)
 
-    if len(objs == 0):
+    if len(objs) == 0:
         return [], frame_fixed
 
     best_obj = None
