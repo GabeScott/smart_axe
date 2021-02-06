@@ -95,6 +95,7 @@ def detect_axe(frame):
     detection_scores = interpreter.get_tensor(output_details[2]['index'])
     num_boxes = interpreter.get_tensor(output_details[3]['index'])
     print(detection_scores)
+    return [], image_resized
     for i in range(int(num_boxes[0])):
         if detection_scores[0, i] > .1:
            print(detection_boxes[i])
