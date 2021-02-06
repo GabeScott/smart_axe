@@ -78,7 +78,6 @@ def detect_axe(frame):
     # Test the model on random input data.
     input_shape = input_details[0]['shape']
     image_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-    imH, imW, _ = image.shape
     image_resized = cv2.resize(image_rgb, (320, 320))
     input_data = np.expand_dims(image_resized, axis=0)
 
