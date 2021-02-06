@@ -52,7 +52,8 @@ interpreter.allocate_tensors()
 def log_msg_and_time(msg):
     if DEBUG:
         print(msg)
-        print(str(time.strftime("%H:%M:%S.%f", time.localtime(time.time()))))
+        print(datetime.utcnow().isoformat(sep=' ', timespec='milliseconds'))
+        # print(str(time.strftime("%H:%M:%S.%f", time.localtime(time.time()))))
 
 
 def transform_image(x, y, w, h, img):
