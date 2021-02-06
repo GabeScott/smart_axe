@@ -65,8 +65,13 @@ def transform_image(x, y, w, h, img):
 
 
 def detect_axe(frame):
+    input_mean = 127.5
+    input_std = 127.5
     frame_fixed = cv2.rotate(frame, cv2.ROTATE_90_COUNTERCLOCKWISE) 
     frame_fixed = cv2.cvtColor(frame_fixed, cv2.COLOR_BGR2RGB)
+    frame_fixed = cv2.resize(frame_fixed, (320, 320))
+    input_data = np.expand_dims(frame_fixed, axis=0)
+    input_data = (np.float32(input_data) - input_mean) / input_std
 
     image = Image.fromarray(frame_fixed)
 
@@ -78,12 +83,11 @@ def detect_axe(frame):
     interpreter.allocate_tensors()
 
     size = common.input_size(interpreter)
-    image = Image.fromarray(frame_fixed).resize(size, Image.ANTIALIAS)
+
 
     # image.save("CHECK_THIS_FILE.jpg")
-
     # Run an inference
-    common.set_input(interpreter, image)
+    common.set_input(interpreter, input_data)
     # interpreter.invoke()
     boxes = common.output_tensor(interpreter, 0)
     scores = common.output_tensor(interpreter, 2)
