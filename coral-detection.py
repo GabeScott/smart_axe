@@ -210,7 +210,9 @@ while True:
             print("Detected at: ("+str(transformed_points[0][0][0]) + ", " + str(transformed_points[0][0][1]) + ")", end='')
             print("  Original Coords: ("+str(boxes[0])+", "+str(boxes[1])+")")
 
-            send_hit_to_target(boxes)
+
+            points_to_send = [transformed_points[0][0][0], transformed_points[0][0][1], transformed_points[1][0][0]-transformed_points[0][0][0], transformed_points[1][0][1]-transformed_points[0][0][1]]
+            send_hit_to_target(points_to_send)
 
             cv2.imwrite("detected"+str(num_detected)+".png", frame)
             num_detected += 1
