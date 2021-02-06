@@ -115,9 +115,10 @@ def detect_axe(frame):
             xmax=np.minimum(1.0, xmax)*320
             ymax=np.minimum(1.0, ymax)*320
 
-            print(get_original_points(xmin, ymin, xmax-xmin, ymax-ymin))
-            print([xmin, ymin, float(xmax-xmin), float(ymax-ymin)])
-            return [xmin, ymin, float(xmax-xmin), float(ymax-ymin)], frame_fixed
+            orig_points = get_original_points(xmin, ymin, xmax-xmin, ymax-ymin)
+
+
+            return [orig_points[0][0][0], orig_points[0][0][1], orig_points[1][0][0]-orig_points[0][0][0], orig_points[1][0][1]-orig_points[0][0][1]], frame_fixed
 
 
     return [], image_resized
