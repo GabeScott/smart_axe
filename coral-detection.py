@@ -79,6 +79,9 @@ def detect_axe(frame):
     input_shape = input_details[0]['shape']
     image_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
     image_resized = cv2.resize(image_rgb, (320, 320))
+
+    cv2.imwrite("CHECK_THIS.jpg", image_resized)
+
     input_data = np.expand_dims(image_resized, axis=0)
 
     input_data = (np.float32(input_data) - input_mean) / input_std
