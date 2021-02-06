@@ -8,7 +8,7 @@ import cv2
 import numpy as np
 import time
 
-MIN_DETECT_FRAMES=5
+MIN_DETECT_FRAMES=2
 MIN_EMPTY_FRAMES=10
 
 DEBUG = True
@@ -43,7 +43,8 @@ num_empty_in_a_row = 0
 
 model_file = 'smart_axe.tflite'
 
-interpreter = edgetpu.make_interpreter(model_file)
+interpreter = tflite.Interpreter(model_path="smart_axe.tflite",
+        experimental_delegates=[tflite.load_delegate('libedgetpu.so.1')])
 interpreter.allocate_tensors()
 
 
@@ -75,9 +76,7 @@ def get_original_points(x, y, w, h):
 
 
 def detect_axe(frame):
-    interpreter = tflite.Interpreter(model_path="smart_axe.tflite",
-        experimental_delegates=[tflite.load_delegate('libedgetpu.so.1')])
-    interpreter.allocate_tensors()
+    global interpreter
     # Get input and output tensors.
     input_details = interpreter.get_input_details()
     output_details = interpreter.get_output_details()
