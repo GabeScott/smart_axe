@@ -96,10 +96,19 @@ def detect_axe(frame):
     detection_scores = interpreter.get_tensor(output_details[2]['index'])
     num_boxes = interpreter.get_tensor(output_details[3]['index'])
     print(detection_scores)
-    return [], image_resized
+
     for i in range(int(num_boxes[0])):
-        if detection_scores[0, i] > .1:
-           print(detection_boxes[i])
+        if detection_scores[0, i] > .4:
+            ymin, xmin, ymax, xmax = boxes[0][i]
+            xmin=np.maximum(0.0, xmin)*1080
+            ymin=np.maximum(0.0, ymin)*1920
+            xmax=np.minimum(1.0, xmax)*1080
+            ymax=np.minimum(1.0, ymax)*1920
+            print([xmin, ymin, float(xmax-xmin), float(ymax-ymin)])
+            return [xmin, ymin, float(xmax-xmin), float(ymax-ymin)], frame_fixed
+
+
+    return [], image_resized
         # input_mean = 127.5
     # input_std = 127.5
     # frame_fixed = cv2.rotate(frame, cv2.ROTATE_90_COUNTERCLOCKWISE) 
