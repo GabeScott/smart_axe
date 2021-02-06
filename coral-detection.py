@@ -77,7 +77,8 @@ def detect_axe(frame):
     input_std = 127.5
     # Test the model on random input data.
     input_shape = input_details[0]['shape']
-    image_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+    frame_fixed = cv2.rotate(frame, cv2.ROTATE_90_COUNTERCLOCKWISE)
+    # image_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
     image_resized = cv2.resize(image_rgb, (320, 320))
 
     cv2.imwrite("CHECK_THIS.jpg", image_resized)
