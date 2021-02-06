@@ -62,6 +62,16 @@ def transform_image(x, y, w, h, img):
 
     return transformed_points
 
+def get_original_points(x, y, w, h):
+    source = [[0,0],[320,0],[0,320],[320,320]]
+    dest = [[0,0],[1080,0],[0,1920],[1080,1920]]
+    M = cv2.getPerspectiveTransform(np.float32(source),np.float32(dest))
+
+    points_to_transform = np.float32([[[x,y]], [[x+w, y+h]]])
+    transformed_points = cv2.perspectiveTransform(points_to_transform, M)
+
+    return transformed_points
+
 
 
 def detect_axe(frame):
@@ -100,10 +110,12 @@ def detect_axe(frame):
     for i in range(int(num_boxes[0])):
         if detection_scores[0, i] > .4:
             ymin, xmin, ymax, xmax = detection_boxes[0][i]
-            xmin=np.maximum(0.0, xmin)*1080
-            ymin=np.maximum(0.0, ymin)*1920
-            xmax=np.minimum(1.0, xmax)*1080
-            ymax=np.minimum(1.0, ymax)*1920
+            xmin=np.maximum(0.0, xmin)*320
+            ymin=np.maximum(0.0, ymin)*320
+            xmax=np.minimum(1.0, xmax)*320
+            ymax=np.minimum(1.0, ymax)*320
+
+            print(get_original_points(xmin, ymin, xmax-xmin, ymax-ymin))
             print([xmin, ymin, float(xmax-xmin), float(ymax-ymin)])
             return [xmin, ymin, float(xmax-xmin), float(ymax-ymin)], frame_fixed
 
