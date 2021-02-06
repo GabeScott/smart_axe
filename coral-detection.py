@@ -9,9 +9,9 @@ import numpy as np
 import time
 
 MIN_DETECT_FRAMES=2
-MIN_EMPTY_FRAMES=10
+MIN_EMPTY_FRAMES=5
 
-DEBUG = False
+DEBUG = True
 
 LANE_INDEX = 0
 
@@ -52,7 +52,7 @@ interpreter.allocate_tensors()
 def log_msg_and_time(msg):
     if DEBUG:
         print(msg)
-        print(str(time.strftime("%H:%M:%S", time.localtime(time.time()))))
+        print(str(time.strftime("%H:%M:%S.%f", time.localtime(time.time()))))
 
 
 def transform_image(x, y, w, h, img):
@@ -76,6 +76,7 @@ def get_original_points(x, y, w, h):
 
 
 def detect_axe(frame):
+    log_msg_and_time("Started Processing Frame")
     global interpreter
     # Get input and output tensors.
     input_details = interpreter.get_input_details()
@@ -90,14 +91,14 @@ def detect_axe(frame):
     # image_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
     image_resized = cv2.resize(frame_fixed, (320, 320))
 
-    cv2.imwrite("CHECK_THIS.jpg", image_resized)
-
     input_data = np.expand_dims(image_resized, axis=0)
 
     input_data = (np.float32(input_data) - input_mean) / input_std
 
     interpreter.set_tensor(input_details[0]['index'], input_data)
+    log_msg_and_time("About To Invoke")
     interpreter.invoke()
+    log_msg_and_time("Finished Invoking")
     # The function `get_tensor()` returns a copy of the tensor data.
     # Use `tensor()` in order to get a pointer to the tensor.
     detection_boxes = interpreter.get_tensor(output_details[0]['index'])
@@ -115,10 +116,10 @@ def detect_axe(frame):
 
             orig_points = get_original_points(xmin, ymin, xmax-xmin, ymax-ymin)
 
-
+            log_msg_and_time("Finished Processing Frame")
             return [orig_points[0][0][0], orig_points[0][0][1], orig_points[1][0][0]-orig_points[0][0][0], orig_points[1][0][1]-orig_points[0][0][1]], frame_fixed
 
-
+    log_msg_and_time("Finished Processing Frame")
     return [], image_resized
         # input_mean = 127.5
     # input_std = 127.5
@@ -161,6 +162,7 @@ def detect_axe(frame):
 
 
 def send_hit_to_target(box):
+    log_msg_and_time("About To Send Hit")
     x = str(box[0])
     y = str(box[1])
     width = str(float(box[2]/10))
