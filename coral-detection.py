@@ -81,7 +81,7 @@ def detect_axe(frame):
     interpreter.allocate_tensors()
 
     size = common.input_size(interpreter)
-
+    print(input_data)
 
     # image.save("CHECK_THIS_FILE.jpg")
     # Run an inference
