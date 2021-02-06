@@ -73,8 +73,6 @@ def detect_axe(frame):
     input_data = np.expand_dims(frame_fixed, axis=0)
     input_data = (np.float32(input_data) - input_mean) / input_std
 
-    image = Image.fromarray(frame_fixed)
-
     # image.save("CHECK_THIS.jpg")
 
     model_file = 'smart_axe.tflite'
@@ -87,12 +85,14 @@ def detect_axe(frame):
 
     # image.save("CHECK_THIS_FILE.jpg")
     # Run an inference
-    common.set_input(interpreter, input_data)
+    run_inference(interpreter, input_data)
+    objs = get_objects(interpreter, .4)
+    # common.set_input(interpreter, input_data)
     # interpreter.invoke()
-    boxes = common.output_tensor(interpreter, 0)
-    scores = common.output_tensor(interpreter, 2)
+    # boxes = common.output_tensor(interpreter, 0)
+    # scores = common.output_tensor(interpreter, 2)
 
-    print(scores)
+    print(objs)
 
     for i in range(len(scores[0])):
         if scores[0][i] > .1:
