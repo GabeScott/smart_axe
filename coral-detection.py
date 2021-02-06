@@ -62,8 +62,6 @@ def transform_image(x, y, w, h, img):
 
     return transformed_points
 
-def get_input_tensor(image):
-
 
 
 def detect_axe(frame):
