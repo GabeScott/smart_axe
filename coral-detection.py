@@ -11,7 +11,7 @@ import time
 MIN_DETECT_FRAMES=2
 MIN_EMPTY_FRAMES=10
 
-DEBUG = True
+DEBUG = False
 
 LANE_INDEX = 0
 
