@@ -11,7 +11,7 @@ import time
 MIN_DETECT_FRAMES=5
 MIN_EMPTY_FRAMES=10
 
-DEBUG = False
+DEBUG = True
 
 LANE_INDEX = 0
 
@@ -105,7 +105,6 @@ def detect_axe(frame):
     detection_classes = interpreter.get_tensor(output_details[1]['index'])
     detection_scores = interpreter.get_tensor(output_details[2]['index'])
     num_boxes = interpreter.get_tensor(output_details[3]['index'])
-    print(detection_scores)
 
     for i in range(int(num_boxes[0])):
         if detection_scores[0, i] > .4:
