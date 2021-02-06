@@ -172,6 +172,8 @@ def send_hit_to_target(box):
             'width':width,
             'height':height}
 
+    print(data)
+
     sio = SocketIO('http://34.227.251.88', 3000)
     sio.emit('test hit', data)
 
