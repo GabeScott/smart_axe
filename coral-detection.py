@@ -79,7 +79,7 @@ def detect_axe(frame):
     input_shape = input_details[0]['shape']
     frame_fixed = cv2.rotate(frame, cv2.ROTATE_90_COUNTERCLOCKWISE)
     # image_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-    image_resized = cv2.resize(image_rgb, (320, 320))
+    image_resized = cv2.resize(frame_fixed, (320, 320))
 
     cv2.imwrite("CHECK_THIS.jpg", image_resized)
 
