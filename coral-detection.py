@@ -1,9 +1,8 @@
 from pycoral.utils import edgetpu
 from pycoral.adapters import common
-from pycoral.adapters.detect import get_objects
 from pycoral.adapters import detect
 from socketIO_client_nexus import SocketIO
-from pycoral.utils.edgetpu import run_inference
+import tflite_runtime.interpreter as tflite
 from PIL import Image
 import cv2
 import numpy as np
@@ -63,47 +62,58 @@ def transform_image(x, y, w, h, img):
 
     return transformed_points
 
+def get_input_tensor(image):
+
+
 
 def detect_axe(frame):
+    interpreter = tflite.Interpreter(model_path="smart_axe.tflite",
+        experimental_delegates=[tflite.load_delegate('libedgetpu.so.1')])
+    interpreter.allocate_tensors()
+    # Get input and output tensors.
+    input_details = interpreter.get_input_details()
+    output_details = interpreter.get_output_details()
+    # print(output_details)
+
     input_mean = 127.5
     input_std = 127.5
-    frame_fixed = cv2.rotate(frame, cv2.ROTATE_90_COUNTERCLOCKWISE) 
-    frame_fixed = cv2.cvtColor(frame_fixed, cv2.COLOR_BGR2RGB)
-    frame_fixed = cv2.resize(frame_fixed, (320, 320))
-    input_data = np.expand_dims(frame_fixed, axis=0)
+    # Test the model on random input data.
+    input_shape = input_details[0]['shape']
+    image_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+    imH, imW, _ = image.shape
+    image_resized = cv2.resize(image_rgb, (320, 320))
+    input_data = np.expand_dims(image_resized, axis=0)
+
     input_data = (np.float32(input_data) - input_mean) / input_std
 
-    # image.save("CHECK_THIS.jpg")
+    interpreter.set_tensor(input_details[0]['index'], input_data)
+    interpreter.invoke()
+    # The function `get_tensor()` returns a copy of the tensor data.
+    # Use `tensor()` in order to get a pointer to the tensor.
+    detection_boxes = interpreter.get_tensor(output_details[0]['index'])
+    detection_classes = interpreter.get_tensor(output_details[1]['index'])
+    detection_scores = interpreter.get_tensor(output_details[2]['index'])
+    num_boxes = interpreter.get_tensor(output_details[3]['index'])
+    print(detection_scores)
+    for i in range(int(num_boxes[0])):
+        if detection_scores[0, i] > .1:
+           print(detection_boxes[i])
+        # input_mean = 127.5
+    # input_std = 127.5
+    # frame_fixed = cv2.rotate(frame, cv2.ROTATE_90_COUNTERCLOCKWISE) 
+    # frame_fixed = cv2.cvtColor(frame_fixed, cv2.COLOR_BGR2RGB)
+    # frame_fixed = cv2.resize(frame_fixed, (320, 320))
+    # input_data = np.expand_dims(frame_fixed, axis=0)
+    # input_data = (np.float32(input_data) - input_mean) / input_std
 
-    model_file = 'smart_axe.tflite'
+    # image = Image.fromarray(frame_fixed)
 
-    interpreter = edgetpu.make_interpreter(model_file)
-    interpreter.allocate_tensors()
+    # # image.save("CHECK_THIS.jpg")
 
-    size = common.input_size(interpreter)
-    print(input_data)
+    # model_file = 'smart_axe.tflite'
 
-    # image.save("CHECK_THIS_FILE.jpg")
-    # Run an inference
-    run_inference(interpreter, input_data)
-    objs = get_objects(interpreter, .4)
-    # common.set_input(interpreter, input_data)
-    # interpreter.invoke()
-    # boxes = common.output_tensor(interpreter, 0)
-    # scores = common.output_tensor(interpreter, 2)
-
-    print(objs)
-
-    for i in range(len(scores[0])):
-        if scores[0][i] > .1:
-            ymin, xmin, ymax, xmax = boxes[0][i]
-            xmin=np.maximum(0.0, xmin)*1080
-            ymin=np.maximum(0.0, ymin)*1920
-            xmax=np.minimum(1.0, xmax)*1080
-            ymax=np.minimum(1.0, ymax)*1920
-            return [xmin, ymin, float(xmax-xmin), float(ymax-ymin)], frame_fixed
-
-    return [], frame_fixed
+    # interpreter = edgetpu.make_interpreter(model_file)
+    # interpreter.allocate_tensors()
 
     # _, scale = common.set_resized_input(interpreter, image.size, lambda size: image.resize(size, Image.ANTIALIAS))
     # interpreter.invoke()
@@ -121,11 +131,11 @@ def detect_axe(frame):
     #         score = obj.score
     #         best_obj = obj
 
-    print("Detection Score:" + str(score))
+    # print("Detection Score:" + str(score))
 
-    box = best_obj.bbox
+    # box = best_obj.bbox
 
-    return [box.xmin, box.ymin, box.xmax-box.xmin, box.ymax-box.ymin], frame_fixed
+    # return [box.xmin, box.ymin, box.xmax-box.xmin, box.ymax-box.ymin], frame_fixed
 
 
 def send_hit_to_target(box):
