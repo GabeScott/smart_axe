@@ -1,7 +1,9 @@
 from pycoral.utils import edgetpu
 from pycoral.adapters import common
+from pycoral.adapters.detect import get_objects
 from pycoral.adapters import detect
 from socketIO_client_nexus import SocketIO
+from pycoral.utils.edgetpu import run_inference
 from PIL import Image
 import cv2
 import numpy as np
@@ -75,21 +77,45 @@ def detect_axe(frame):
     interpreter = edgetpu.make_interpreter(model_file)
     interpreter.allocate_tensors()
 
-    _, scale = common.set_resized_input(interpreter, image.size, lambda size: image.resize(size, Image.ANTIALIAS))
-    interpreter.invoke()
-    objs = detect.get_objects(interpreter, 0.4, scale)
+    size = common.input_size(interpreter)
+    image = Image.fromarray(frame_fixed).resize(size, Image.ANTIALIAS)
 
-    print(objs)
+    # image.save("CHECK_THIS_FILE.jpg")
 
-    if len(objs) == 0:
-        return [], frame_fixed
+    # Run an inference
+    common.set_input(interpreter, image)
+    # interpreter.invoke()
+    boxes = common.output_tensor(interpreter, 0)
+    scores = common.output_tensor(interpreter, 2)
 
-    best_obj = None
-    score=-1
-    for obj in objs:
-        if obj.score > score:
-            score = obj.score
-            best_obj = obj
+    print(scores)
+
+    for i in range(len(scores[0])):
+        if scores[0][i] > .1:
+            ymin, xmin, ymax, xmax = boxes[0][i]
+            xmin=np.maximum(0.0, xmin)*1080
+            ymin=np.maximum(0.0, ymin)*1920
+            xmax=np.minimum(1.0, xmax)*1080
+            ymax=np.minimum(1.0, ymax)*1920
+            return [xmin, ymin, float(xmax-xmin), float(ymax-ymin)], frame_fixed
+
+    return [], frame_fixed
+
+    # _, scale = common.set_resized_input(interpreter, image.size, lambda size: image.resize(size, Image.ANTIALIAS))
+    # interpreter.invoke()
+    # objs = detect.get_objects(interpreter, 0.4, scale)
+
+    # print(objs)
+
+    # if len(objs) == 0:
+    #     return [], frame_fixed
+
+    # best_obj = None
+    # score=-1
+    # for obj in objs:
+    #     if obj.score > score:
+    #         score = obj.score
+    #         best_obj = obj
 
     print("Detection Score:" + str(score))
 
