@@ -45,9 +45,11 @@ num_empty_in_a_row = 0
 
 model_file = 'smart_axe.tflite'
 
-interpreter = tflite.Interpreter(model_path="smart_axe.tflite",
+interpreter = tflite.Interpreter(model_path="smart_axe_test_quant.tflite",
         experimental_delegates=[tflite.load_delegate('libedgetpu.so.1')])
 interpreter.allocate_tensors()
+
+HIT_SOCKET = SocketIO('http://34.227.251.88', 3000)
 
 
 
@@ -92,11 +94,16 @@ def detect_axe(frame):
     input_shape = input_details[0]['shape']
     frame_fixed = cv2.rotate(frame, cv2.ROTATE_90_COUNTERCLOCKWISE)
     # image_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-    image_resized = cv2.resize(frame_fixed, (320, 320))
+    frame_fixed = cv2.resize(frame_fixed, (320, 320))
 
-    input_data = np.expand_dims(image_resized, axis=0)
+    if input_details[0]['dtype'] == np.uint8:
+        input_data = np.float32(frame_fixed) / 255.0
+        input_scale, input_zero_point = input_details[0]["quantization"]
+        input_data = input_data / input_scale + input_zero_point
+    else:
+        input_data = (np.float32(frame_fixed) - input_mean) / input_std
 
-    input_data = (np.float32(input_data) - input_mean) / input_std
+    input_data = np.expand_dims(input_data, axis=0).astype(input_details[0]["dtype"])
 
     interpreter.set_tensor(input_details[0]['index'], input_data)
     log_msg_and_time("About To Invoke")
@@ -110,7 +117,7 @@ def detect_axe(frame):
     num_boxes = interpreter.get_tensor(output_details[3]['index'])
 
     for i in range(int(num_boxes[0])):
-        if detection_scores[0, i] > .4:
+        if detection_scores[0, i] > .3:
             ymin, xmin, ymax, xmax = detection_boxes[0][i]
             xmin=np.maximum(0.0, xmin)*320
             ymin=np.maximum(0.0, ymin)*320
@@ -123,7 +130,7 @@ def detect_axe(frame):
             return [orig_points[0][0][0], orig_points[0][0][1], orig_points[1][0][0]-orig_points[0][0][0], orig_points[1][0][1]-orig_points[0][0][1]], frame_fixed
 
     log_msg_and_time("Finished Processing Frame")
-    return [], image_resized
+    return [], frame_fixed
         # input_mean = 127.5
     # input_std = 127.5
     # frame_fixed = cv2.rotate(frame, cv2.ROTATE_90_COUNTERCLOCKWISE) 
@@ -179,8 +186,7 @@ def send_hit_to_target(box):
 
     print(data)
 
-    sio = SocketIO('http://34.227.251.88', 3000)
-    sio.emit('test hit', data)
+    HIT_SOCKET.emit('test hit', data)
 
     log_msg_and_time("Sent Hit to Target")
     
