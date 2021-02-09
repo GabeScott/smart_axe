@@ -1,6 +1,3 @@
-from pycoral.utils import edgetpu
-from pycoral.adapters import common
-from pycoral.adapters import detect
 from socketIO_client_nexus import SocketIO
 import tflite_runtime.interpreter as tflite
 from PIL import Image
@@ -8,6 +5,7 @@ import cv2
 import numpy as np
 import time
 from datetime import datetime
+import collections
 
 
 MIN_DETECT_FRAMES=2
@@ -43,13 +41,73 @@ num_detected = 0
 num_detected_in_a_row = 0
 num_empty_in_a_row = 0
 
-model_file = 'smart_axe.tflite'
+model_file = 'smart_axe_edgetpu.tflite'
 
-interpreter = tflite.Interpreter(model_path="smart_axe.tflite",
-        experimental_delegates=[tflite.load_delegate('libedgetpu.so.1')])
+interpreter = tflite.Interpreter(model_path=model_file)
+# interpreter = tflite.Interpreter(model_path="smart_axe.tflite",
+        # experimental_delegates=[tflite.load_delegate('libedgetpu.so.1')])
 interpreter.allocate_tensors()
 
 HIT_SOCKET = SocketIO('http://34.227.251.88', 3000)
+
+class BBox(collections.namedtuple('BBox', ['xmin', 'ymin', 'xmax', 'ymax'])):
+    __slots__ = ()
+
+    @property
+    def width(self):
+        return self.xmax - self.xmin
+
+    @property
+    def height(self):
+        return self.ymax - self.ymin
+
+    @property
+    def area(self):
+        return self.width * self.height
+
+    @property
+    def valid(self):
+        return self.width >= 0 and self.height >= 0
+
+    def scale(self, sx, sy):
+        return BBox(xmin=sx * self.xmin,
+                ymin=sy * self.ymin,
+                xmax=sx * self.xmax,
+                ymax=sy * self.ymax)
+
+    def translate(self, dx, dy):
+        return BBox(xmin=dx + self.xmin,
+                ymin=dy + self.ymin,
+                xmax=dx + self.xmax,
+                ymax=dy + self.ymax)
+
+    def map(self, f):
+        return BBox(xmin=f(self.xmin),
+                ymin=f(self.ymin),
+                xmax=f(self.xmax),
+                ymax=f(self.ymax))
+
+    @staticmethod
+    def intersect(a, b):
+        return BBox(xmin=max(a.xmin, b.xmin),
+                ymin=max(a.ymin, b.ymin),
+                xmax=min(a.xmax, b.xmax),
+                ymax=min(a.ymax, b.ymax))
+
+    @staticmethod
+    def union(a, b):
+        return BBox(xmin=min(a.xmin, b.xmin),
+                ymin=min(a.ymin, b.ymin),
+                xmax=max(a.xmax, b.xmax),
+                ymax=max(a.ymax, b.ymax))
+
+    @staticmethod
+    def iou(a, b):
+        intersection = BBox.intersect(a, b)
+        if not intersection.valid:
+            return 0.0
+        area = intersection.area
+        return area / (a.area + b.area - area)
 
 
 
@@ -57,7 +115,6 @@ def log_msg_and_time(msg):
     if DEBUG:
         print(msg)
         print(datetime.utcnow().isoformat(sep=' ', timespec='milliseconds'))
-        # print(str(time.strftime("%H:%M:%S.%f", time.localtime(time.time()))))
 
 
 def transform_image(x, y, w, h, img):
@@ -79,8 +136,98 @@ def get_original_points(x, y, w, h):
     return transformed_points
 
 
+def input_size(interpreter):
+    _, height, width, _ = interpreter.get_input_details()[0]['shape']
+    return width, height
+
+
+def input_tensor(interpreter):
+    tensor_index = interpreter.get_input_details()[0]['index']
+    return interpreter.tensor(tensor_index)()[0]
+
+
+def set_input(interpreter, size, resize):
+    width, height = input_size(interpreter)
+    w, h = size
+    scale = min(width / w, height / h)
+    w, h = int(w * scale), int(h * scale)
+    tensor = input_tensor(interpreter)
+    tensor.fill(0)  # padding
+    _, _, channel = tensor.shape
+    tensor[:h, :w] = np.reshape(resize((w, h)), (h, w, channel))
+    return scale, scale
+
+
+def output_tensor(interpreter, i):
+    tensor = interpreter.tensor(interpreter.get_output_details()[i]['index'])()
+    return np.squeeze(tensor)
+
+
+def get_output(interpreter, score_threshold, image_scale=(1.0, 1.0)):
+    boxes = output_tensor(interpreter, 0)
+    class_ids = output_tensor(interpreter, 1)
+    scores = output_tensor(interpreter, 2)
+    count = int(output_tensor(interpreter, 3))
+
+    width, height = input_size(interpreter)
+    image_scale_x, image_scale_y = image_scale
+    sx, sy = width / image_scale_x, height / image_scale_y
+
+    def make(i):
+        ymin, xmin, ymax, xmax = boxes[i]
+        return Object(
+            id=int(class_ids[i]),
+            score=float(scores[i]),
+            bbox=BBox(xmin=xmin,
+                      ymin=ymin,
+                      xmax=xmax,
+                      ymax=ymax).scale(sx, sy).map(int))
+
+    return [make(i) for i in range(count) if scores[i] >= score_threshold]
+
+
+
 
 def detect_axe(frame):
+    global interpreter
+    log_msg_and_time("About To Process Frame")
+
+    frame_fixed = cv2.rotate(frame, cv2.ROTATE_90_COUNTERCLOCKWISE)
+    cv2.imwrite("frame.jpg", frame_fixed)
+
+    image = Image.open("frame.jpg")
+    scale = set_input(interpreter, image.size, lambda size: image.resize(size, Image.ANTIALIAS))
+
+    log_msg_and_time("About To Invoke")
+    interpreter.invoke()
+    log_msg_and_time("Finished Invoking")
+
+    objs = get_output(interpreter, .4, scale)
+
+    log_msg_and_time("Finished Processing Frame")
+
+    if not objs:
+        return [], frame_fixed
+
+    print(obj.score)
+
+    box = objs[0].bbox
+
+    xmin = box.xmin
+    xmax = box.xmax
+    ymin = box.ymin
+    ymax = box.ymax
+
+    orig_points = get_original_points(xmin, ymin, xmax-xmin, ymax-ymin)
+    return [orig_points[0][0][0], orig_points[0][0][1], orig_points[1][0][0]-orig_points[0][0][0], orig_points[1][0][1]-orig_points[0][0][1]], frame_fixed
+
+
+
+
+
+
+
+def detect_axe_dep(frame):
     log_msg_and_time("Started Processing Frame")
     global interpreter
     # Get input and output tensors.
@@ -131,44 +278,6 @@ def detect_axe(frame):
 
     log_msg_and_time("Finished Processing Frame")
     return [], frame_fixed
-        # input_mean = 127.5
-    # input_std = 127.5
-    # frame_fixed = cv2.rotate(frame, cv2.ROTATE_90_COUNTERCLOCKWISE) 
-    # frame_fixed = cv2.cvtColor(frame_fixed, cv2.COLOR_BGR2RGB)
-    # frame_fixed = cv2.resize(frame_fixed, (320, 320))
-    # input_data = np.expand_dims(frame_fixed, axis=0)
-    # input_data = (np.float32(input_data) - input_mean) / input_std
-
-    # image = Image.fromarray(frame_fixed)
-
-    # # image.save("CHECK_THIS.jpg")
-
-    # model_file = 'smart_axe.tflite'
-
-    # interpreter = edgetpu.make_interpreter(model_file)
-    # interpreter.allocate_tensors()
-
-    # _, scale = common.set_resized_input(interpreter, image.size, lambda size: image.resize(size, Image.ANTIALIAS))
-    # interpreter.invoke()
-    # objs = detect.get_objects(interpreter, 0.4, scale)
-
-    # print(objs)
-
-    # if len(objs) == 0:
-    #     return [], frame_fixed
-
-    # best_obj = None
-    # score=-1
-    # for obj in objs:
-    #     if obj.score > score:
-    #         score = obj.score
-    #         best_obj = obj
-
-    # print("Detection Score:" + str(score))
-
-    # box = best_obj.bbox
-
-    # return [box.xmin, box.ymin, box.xmax-box.xmin, box.ymax-box.ymin], frame_fixed
 
 
 def send_hit_to_target(box):
