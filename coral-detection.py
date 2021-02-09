@@ -43,9 +43,9 @@ num_empty_in_a_row = 0
 
 model_file = 'smart_axe_edgetpu.tflite'
 
-interpreter = tflite.Interpreter(model_path=model_file)
-# interpreter = tflite.Interpreter(model_path="smart_axe.tflite",
-        # experimental_delegates=[tflite.load_delegate('libedgetpu.so.1')])
+# interpreter = tflite.Interpreter(model_path=model_file)
+interpreter = tflite.Interpreter(model_path="smart_axe.tflite",
+        experimental_delegates=[tflite.load_delegate('libedgetpu.so.1')])
 interpreter.allocate_tensors()
 
 HIT_SOCKET = SocketIO('http://34.227.251.88', 3000)
