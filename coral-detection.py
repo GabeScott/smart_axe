@@ -44,7 +44,7 @@ num_empty_in_a_row = 0
 model_file = 'smart_axe_edgetpu.tflite'
 
 # interpreter = tflite.Interpreter(model_path=model_file)
-interpreter = tflite.Interpreter(model_path="smart_axe.tflite",
+interpreter = tflite.Interpreter(model_path=model_file,
         experimental_delegates=[tflite.load_delegate('libedgetpu.so.1')])
 interpreter.allocate_tensors()
 
