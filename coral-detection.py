@@ -60,9 +60,9 @@ class ThreadedCamera(object):
         self.capture = cv2.VideoCapture(source)
         self.capture.set(cv2.CAP_PROP_FRAME_WIDTH, DIM[1])
         self.capture.set(cv2.CAP_PROP_FRAME_HEIGHT, DIM[0])
-        self.capture.set(cv2.CAP_PROP_BUFFERSIZE, 1)
+        self.capture.set(cv2.CAP_PROP_BUFFERSIZE, 0)
 
-        self.FPS = 1/5
+        self.FPS = 1/30
         self.FPS_MS = int(self.FPS * 1000)
 
         self.thread = Thread(target = self.update, args = ())
@@ -71,17 +71,18 @@ class ThreadedCamera(object):
 
         self.status = False
         self.frame  = None
+        self.boxes = []
 
     def update(self):
         while True:
             if self.capture.isOpened():
-                (self.status, self.frame) = self.capture.read()
+                self.status, self.frame = self.capture.read()
             time.sleep(self.FPS)
 
     def grab_frame(self):
         if self.status:
-            return self.frame
-        return None  
+            return detect_axe(self.frame)
+        return [], None  
 
 
 
@@ -161,16 +162,6 @@ def transform_image(x, y, w, h, img):
 
     return transformed_points
 
-def get_original_points(x, y, w, h):
-    source = [[0,0],[300,0],[0,300],[300,300]]
-    dest = [[0,0],[1080,0],[0,1920],[1080,1920]]
-    M = cv2.getPerspectiveTransform(np.float32(source),np.float32(dest))
-
-    points_to_transform = np.float32([[[x,y]], [[x+w, y+h]]])
-    transformed_points = cv2.perspectiveTransform(points_to_transform, M)
-
-    return transformed_points
-
 
 def input_size(interpreter):
     _, height, width, _ = interpreter.get_input_details()[0]['shape']
@@ -225,10 +216,10 @@ def get_output(interpreter, score_threshold, image_scale=(1.0, 1.0)):
 
 
 def detect_axe(frame):
-
     if frame is None:
         log_msg_and_time("EMPTY FRAME RECEIVED")
         return [], frame
+
     global interpreter
     log_msg_and_time("About To Process Frame")
 
@@ -249,9 +240,9 @@ def detect_axe(frame):
     if not objs:
         return [], frame_fixed
 
-    print(objs[0].score)
-
     box = objs[0].bbox
+
+    print(objs[0].score)
 
     xmin = box.xmin
     xmax = box.xmax
@@ -267,7 +258,7 @@ def send_hit_to_target(box):
     log_msg_and_time("About To Send Hit")
     x = str(box[0])
     y = str(box[1])
-    width = str(box[2])
+    width = str(box[2]/5.0)
     height = str(box[3])
 
     data = {'lane':LANE_INDEX,
@@ -276,31 +267,18 @@ def send_hit_to_target(box):
             'width':width,
             'height':height}
 
-    print(data)
-
     HIT_SOCKET.emit('real hit', data)
 
     log_msg_and_time("Sent Hit to Target")
-    sys.exit(0)
-    
+
 
 
 streamer = ThreadedCamera()
 startTime = time.time()
 while True:
-    frame = streamer.grab_frame()
     log_msg_and_time("Read Frame")
 
-    processed = False
-    boxes, frame = detect_axe(frame)
-
-    # nowTime = time.time()
-    # boxes = []
-    # if (nowTime - startTime) > 0.0/FPS_LIMIT:
-    #     boxes, frame = detect_axe(frame)
-    #     startTime = time.time()
-    #     log_msg_and_time("Processed Frame")
-    #     processed = True
+    boxes, frame = streamer.grab_frame()
 
     if len(boxes) > 0:
         log_msg_and_time("Axe Detected, waiting for min num of detections")
@@ -324,30 +302,15 @@ while True:
 
             while num_empty_in_a_row < MIN_EMPTY_FRAMES:
                 log_msg_and_time("Waiting for min num of empty frames")
-                frame = streamer.grab_frame()
-
-                boxes, frame = detect_axe(frame)
-
-                # nowTime = time.time()
-                # boxes = []
-                # processed_empty = False
-
-                # if (nowTime - startTime) > 0.0/FPS_LIMIT:
-                #     boxes, frame = detect_axe(frame)
-                #     startTime = time.time()
-                #     processed_empty = True
-                #     log_msg_and_time("Processed Empty Frame")
+                boxes, frame = streamer.grab_frame()
 
                 if frame is None:
                     break
                 if len(boxes) == 0:
-                    # if processed_empty:
                     num_empty_in_a_row += 1
                 else:
-                    # if processed_empty:
                     num_empty_in_a_row = 0
 
             num_empty_in_a_row = 0
     else:
-        # if processed:
         num_detected_in_a_row = 0
