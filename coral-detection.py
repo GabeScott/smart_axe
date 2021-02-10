@@ -126,7 +126,7 @@ def transform_image(x, y, w, h, img):
     return transformed_points
 
 def get_original_points(x, y, w, h):
-    source = [[0,0],[320,0],[0,320],[320,320]]
+    source = [[0,0],[300,0],[0,300],[300,300]]
     dest = [[0,0],[1080,0],[0,1920],[1080,1920]]
     M = cv2.getPerspectiveTransform(np.float32(source),np.float32(dest))
 
