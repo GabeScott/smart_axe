@@ -31,7 +31,7 @@ DIM = (1080, 1920)
 
 DEST_COORDS = [[0,0],[703,0],[0,703],[703,703]]
 
-FPS_LIMIT = 30
+FPS_LIMIT = 60
 
 cap = cv2.VideoCapture(0)
 cap.set(cv2.CAP_PROP_FRAME_WIDTH, DIM[1])
