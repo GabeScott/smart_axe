@@ -229,7 +229,7 @@ def send_hit_to_target(box):
     log_msg_and_time("About To Send Hit")
     x = str(box[0])
     y = str(box[1])
-    width = str(float(box[2]/10))
+    width = str(box[2])
     height = str(box[3])
 
     data = {'lane':LANE_INDEX,
