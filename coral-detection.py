@@ -41,6 +41,8 @@ num_detected = 0
 num_detected_in_a_row = 0
 num_empty_in_a_row = 0
 
+Object = collections.namedtuple('Object', ['id', 'score', 'bbox'])
+
 model_file = 'smart_axe_edgetpu.tflite'
 
 # interpreter = tflite.Interpreter(model_path=model_file)
