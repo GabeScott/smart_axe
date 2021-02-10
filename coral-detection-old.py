@@ -131,44 +131,6 @@ def detect_axe(frame):
 
     log_msg_and_time("Finished Processing Frame")
     return [], frame_fixed
-        # input_mean = 127.5
-    # input_std = 127.5
-    # frame_fixed = cv2.rotate(frame, cv2.ROTATE_90_COUNTERCLOCKWISE) 
-    # frame_fixed = cv2.cvtColor(frame_fixed, cv2.COLOR_BGR2RGB)
-    # frame_fixed = cv2.resize(frame_fixed, (320, 320))
-    # input_data = np.expand_dims(frame_fixed, axis=0)
-    # input_data = (np.float32(input_data) - input_mean) / input_std
-
-    # image = Image.fromarray(frame_fixed)
-
-    # # image.save("CHECK_THIS.jpg")
-
-    # model_file = 'smart_axe.tflite'
-
-    # interpreter = edgetpu.make_interpreter(model_file)
-    # interpreter.allocate_tensors()
-
-    # _, scale = common.set_resized_input(interpreter, image.size, lambda size: image.resize(size, Image.ANTIALIAS))
-    # interpreter.invoke()
-    # objs = detect.get_objects(interpreter, 0.4, scale)
-
-    # print(objs)
-
-    # if len(objs) == 0:
-    #     return [], frame_fixed
-
-    # best_obj = None
-    # score=-1
-    # for obj in objs:
-    #     if obj.score > score:
-    #         score = obj.score
-    #         best_obj = obj
-
-    # print("Detection Score:" + str(score))
-
-    # box = best_obj.bbox
-
-    # return [box.xmin, box.ymin, box.xmax-box.xmin, box.ymax-box.ymin], frame_fixed
 
 
 def send_hit_to_target(box):
@@ -186,7 +148,7 @@ def send_hit_to_target(box):
 
     print(data)
 
-    HIT_SOCKET.emit('test hit', data)
+    HIT_SOCKET.emit('real hit', data)
 
     log_msg_and_time("Sent Hit to Target")
     

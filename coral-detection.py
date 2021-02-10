@@ -224,62 +224,6 @@ def detect_axe(frame):
 
 
 
-
-
-
-def detect_axe_dep(frame):
-    log_msg_and_time("Started Processing Frame")
-    global interpreter
-    # Get input and output tensors.
-    input_details = interpreter.get_input_details()
-    output_details = interpreter.get_output_details()
-    # print(output_details)
-
-    input_mean = 127.5
-    input_std = 127.5
-    # Test the model on random input data.
-    input_shape = input_details[0]['shape']
-    frame_fixed = cv2.rotate(frame, cv2.ROTATE_90_COUNTERCLOCKWISE)
-    # image_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-    frame_fixed = cv2.resize(frame_fixed, (320, 320))
-
-    if input_details[0]['dtype'] == np.uint8:
-        input_data = np.float32(frame_fixed) / 255.0
-        input_scale, input_zero_point = input_details[0]["quantization"]
-        input_data = input_data / input_scale + input_zero_point
-    else:
-        input_data = (np.float32(frame_fixed) - input_mean) / input_std
-
-    input_data = np.expand_dims(input_data, axis=0).astype(input_details[0]["dtype"])
-
-    interpreter.set_tensor(input_details[0]['index'], input_data)
-    log_msg_and_time("About To Invoke")
-    interpreter.invoke()
-    log_msg_and_time("Finished Invoking")
-    # The function `get_tensor()` returns a copy of the tensor data.
-    # Use `tensor()` in order to get a pointer to the tensor.
-    detection_boxes = interpreter.get_tensor(output_details[0]['index'])
-    detection_classes = interpreter.get_tensor(output_details[1]['index'])
-    detection_scores = interpreter.get_tensor(output_details[2]['index'])
-    num_boxes = interpreter.get_tensor(output_details[3]['index'])
-
-    for i in range(int(num_boxes[0])):
-        if detection_scores[0, i] > .3:
-            ymin, xmin, ymax, xmax = detection_boxes[0][i]
-            xmin=np.maximum(0.0, xmin)*320
-            ymin=np.maximum(0.0, ymin)*320
-            xmax=np.minimum(1.0, xmax)*320
-            ymax=np.minimum(1.0, ymax)*320
-
-            orig_points = get_original_points(xmin, ymin, xmax-xmin, ymax-ymin)
-
-            log_msg_and_time("Finished Processing Frame")
-            return [orig_points[0][0][0], orig_points[0][0][1], orig_points[1][0][0]-orig_points[0][0][0], orig_points[1][0][1]-orig_points[0][0][1]], frame_fixed
-
-    log_msg_and_time("Finished Processing Frame")
-    return [], frame_fixed
-
-
 def send_hit_to_target(box):
     log_msg_and_time("About To Send Hit")
     x = str(box[0])
@@ -295,7 +239,7 @@ def send_hit_to_target(box):
 
     print(data)
 
-    HIT_SOCKET.emit('test hit', data)
+    HIT_SOCKET.emit('real hit', data)
 
     log_msg_and_time("Sent Hit to Target")
     
