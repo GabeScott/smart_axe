@@ -220,6 +220,8 @@ def detect_axe(frame):
     ymin = box.ymin
     ymax = box.ymax
 
+    print([xmin, xmax, ymin, ymax])
+
     orig_points = get_original_points(xmin, ymin, xmax-xmin, ymax-ymin)
     return [orig_points[0][0][0], orig_points[0][0][1], orig_points[1][0][0]-orig_points[0][0][0], orig_points[1][0][1]-orig_points[0][0][1]], frame_fixed
 
