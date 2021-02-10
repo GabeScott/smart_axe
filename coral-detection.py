@@ -5,6 +5,7 @@ import cv2
 import numpy as np
 import time
 from datetime import datetime
+import sys
 import collections
 
 
@@ -243,6 +244,7 @@ def send_hit_to_target(box):
     HIT_SOCKET.emit('test hit', data)
 
     log_msg_and_time("Sent Hit to Target")
+    sys.exit(0)
     
 
 
