@@ -34,10 +34,10 @@ DEST_COORDS = [[0,0],[703,0],[0,703],[703,703]]
 
 FPS_LIMIT = 30
 
-cap = cv2.VideoCapture(0)
-cap.set(cv2.CAP_PROP_FRAME_WIDTH, DIM[1])
-cap.set(cv2.CAP_PROP_FRAME_HEIGHT, DIM[0])
-cap.set(cv2.CAP_PROP_BUFFERSIZE, 3)
+# cap = cv2.VideoCapture(0)
+# cap.set(cv2.CAP_PROP_FRAME_WIDTH, DIM[1])
+# cap.set(cv2.CAP_PROP_FRAME_HEIGHT, DIM[0])
+# cap.set(cv2.CAP_PROP_BUFFERSIZE, 3)
 
 num_detected = 0
 num_detected_in_a_row = 0
@@ -53,6 +53,34 @@ interpreter = tflite.Interpreter(model_path=model_file,
 interpreter.allocate_tensors()
 
 HIT_SOCKET = SocketIO('http://34.227.251.88', 3000)
+
+class ThreadedCamera(object):
+    def __init__(self, source = 0):
+
+        self.capture = cv2.VideoCapture(source)
+        self.capture.set(cv2.CAP_PROP_FRAME_WIDTH, DIM[1])
+        self.capture.set(cv2.CAP_PROP_FRAME_HEIGHT, DIM[0])
+        self.capture.set(cv2.CAP_PROP_BUFFERSIZE, 3)
+
+        self.thread = Thread(target = self.update, args = ())
+        self.thread.daemon = True
+        self.thread.start()
+
+        self.status = False
+        self.frame  = None
+
+    def update(self):
+        while True:
+            if self.capture.isOpened():
+                (self.status, self.frame) = self.capture.read()
+
+    def grab_frame(self):
+        if self.status:
+            return self.frame
+        return None  
+
+
+
 
 class BBox(collections.namedtuple('BBox', ['xmin', 'ymin', 'xmax', 'ymax'])):
     __slots__ = ()
@@ -249,10 +277,10 @@ def send_hit_to_target(box):
     
 
 
-
+streamer = ThreadedCamera()
 startTime = time.time()
 while True:
-    ret, frame = cap.read()
+    frame = streamer.grab_frame()
     log_msg_and_time("Read Frame")
 
     processed = False
@@ -260,7 +288,7 @@ while True:
 
     nowTime = time.time()
     boxes = []
-    if (nowTime - startTime) > 1.0/FPS_LIMIT:
+    if (nowTime - startTime) > 0.0/FPS_LIMIT:
         boxes, frame = detect_axe(frame)
         startTime = time.time()
         log_msg_and_time("Processed Frame")
@@ -288,13 +316,13 @@ while True:
 
             while num_empty_in_a_row < MIN_EMPTY_FRAMES:
                 log_msg_and_time("Waiting for min num of empty frames")
-                ret, frame = cap.read()
+                frame = streamer.grab_frame()
 
                 nowTime = time.time()
                 boxes = []
                 processed_empty = False
 
-                if (nowTime - startTime) > 1.0/FPS_LIMIT:
+                if (nowTime - startTime) > 0.0/FPS_LIMIT:
                     boxes, frame = detect_axe(frame)
                     startTime = time.time()
                     processed_empty = True
