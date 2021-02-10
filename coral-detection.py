@@ -211,7 +211,7 @@ def detect_axe(frame):
     if not objs:
         return [], frame_fixed
 
-    print(obj.score)
+    print(objs[0].score)
 
     box = objs[0].bbox
 
