@@ -240,7 +240,7 @@ def send_hit_to_target(box):
 
     print(data)
 
-    HIT_SOCKET.emit('real hit', data)
+    HIT_SOCKET.emit('test hit', data)
 
     log_msg_and_time("Sent Hit to Target")
     
