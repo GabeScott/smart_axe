@@ -274,7 +274,7 @@ def send_hit_to_target(box):
 
 
 streamer = ThreadedCamera()
-startTime = time.time()
+
 while True:
     log_msg_and_time("Read Frame")
 
