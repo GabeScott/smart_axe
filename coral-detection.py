@@ -32,12 +32,12 @@ DIM = (1080, 1920)
 
 DEST_COORDS = [[0,0],[703,0],[0,703],[703,703]]
 
-FPS_LIMIT = 60
+FPS_LIMIT = 30
 
 cap = cv2.VideoCapture(0)
 cap.set(cv2.CAP_PROP_FRAME_WIDTH, DIM[1])
 cap.set(cv2.CAP_PROP_FRAME_HEIGHT, DIM[0])
-cap.set(cv2.CAP_PROP_BUFFERSIZE, 1)
+cap.set(cv2.CAP_PROP_BUFFERSIZE, 3)
 
 num_detected = 0
 num_detected_in_a_row = 0
