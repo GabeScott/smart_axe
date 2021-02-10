@@ -292,15 +292,15 @@ while True:
     log_msg_and_time("Read Frame")
 
     processed = False
+    boxes, frame = detect_axe(frame)
 
-
-    nowTime = time.time()
-    boxes = []
-    if (nowTime - startTime) > 0.0/FPS_LIMIT:
-        boxes, frame = detect_axe(frame)
-        startTime = time.time()
-        log_msg_and_time("Processed Frame")
-        processed = True
+    # nowTime = time.time()
+    # boxes = []
+    # if (nowTime - startTime) > 0.0/FPS_LIMIT:
+    #     boxes, frame = detect_axe(frame)
+    #     startTime = time.time()
+    #     log_msg_and_time("Processed Frame")
+    #     processed = True
 
     if len(boxes) > 0:
         log_msg_and_time("Axe Detected, waiting for min num of detections")
@@ -326,26 +326,28 @@ while True:
                 log_msg_and_time("Waiting for min num of empty frames")
                 frame = streamer.grab_frame()
 
-                nowTime = time.time()
-                boxes = []
-                processed_empty = False
+                boxes, frame = detect_axe(frame)
 
-                if (nowTime - startTime) > 0.0/FPS_LIMIT:
-                    boxes, frame = detect_axe(frame)
-                    startTime = time.time()
-                    processed_empty = True
-                    log_msg_and_time("Processed Empty Frame")
+                # nowTime = time.time()
+                # boxes = []
+                # processed_empty = False
+
+                # if (nowTime - startTime) > 0.0/FPS_LIMIT:
+                #     boxes, frame = detect_axe(frame)
+                #     startTime = time.time()
+                #     processed_empty = True
+                #     log_msg_and_time("Processed Empty Frame")
 
                 if frame is None:
                     break
                 if len(boxes) == 0:
-                    if processed_empty:
-                        num_empty_in_a_row += 1
+                    # if processed_empty:
+                    num_empty_in_a_row += 1
                 else:
-                    if processed_empty:
-                        num_empty_in_a_row = 0
+                    # if processed_empty:
+                    num_empty_in_a_row = 0
 
             num_empty_in_a_row = 0
     else:
-        if processed:
-            num_detected_in_a_row = 0
+        # if processed:
+        num_detected_in_a_row = 0
