@@ -221,6 +221,9 @@ def get_output(interpreter, score_threshold, image_scale=(1.0, 1.0)):
 
 
 def detect_axe(frame):
+
+    if frame is None:
+        return [], frame_fixed
     global interpreter
     log_msg_and_time("About To Process Frame")
 
