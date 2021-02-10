@@ -57,13 +57,12 @@ HIT_SOCKET = SocketIO('http://34.227.251.88', 3000)
 class ThreadedCamera(object):
     def __init__(self, source = 0):
 
-        self.capture = cv2.VideoCapture(source, cv2.CAP_DSHOW)
+        self.capture = cv2.VideoCapture(source)
         self.capture.set(cv2.CAP_PROP_FRAME_WIDTH, DIM[1])
         self.capture.set(cv2.CAP_PROP_FRAME_HEIGHT, DIM[0])
-        self.capture.set(cv2.CAP_PROP_BUFFERSIZE, 2)
-        self.capture.set(cv2.CAP_PROP_FPS, 30)
+        self.capture.set(cv2.CAP_PROP_BUFFERSIZE, 1)
 
-        self.FPS = 1/30
+        self.FPS = 1/5
         self.FPS_MS = int(self.FPS * 1000)
 
         self.thread = Thread(target = self.update, args = ())
@@ -279,7 +278,7 @@ def send_hit_to_target(box):
 
     print(data)
 
-    HIT_SOCKET.emit('test hit', data)
+    HIT_SOCKET.emit('real hit', data)
 
     log_msg_and_time("Sent Hit to Target")
     sys.exit(0)
