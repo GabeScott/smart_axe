@@ -57,12 +57,13 @@ HIT_SOCKET = SocketIO('http://34.227.251.88', 3000)
 class ThreadedCamera(object):
     def __init__(self, source = 0):
 
-        self.capture = cv2.VideoCapture(source)
+        self.capture = cv2.VideoCapture(source, cv2.CAP_DSHOW)
         self.capture.set(cv2.CAP_PROP_FRAME_WIDTH, DIM[1])
         self.capture.set(cv2.CAP_PROP_FRAME_HEIGHT, DIM[0])
-        self.capture.set(cv2.CAP_PROP_BUFFERSIZE, 1)
+        self.capture.set(cv2.CAP_PROP_BUFFERSIZE, 2)
+        self.capture.set(cv2.CAP_PROP_FPS, 30)
 
-        self.FPS = 1/5
+        self.FPS = 1/30
         self.FPS_MS = int(self.FPS * 1000)
 
         self.thread = Thread(target = self.update, args = ())
