@@ -9,7 +9,7 @@ import sys
 import collections
 from threading import Thread
 
-MIN_DETECT_FRAMES=7
+MIN_DETECT_FRAMES=2
 MIN_EMPTY_FRAMES=30
 
 DEBUG = 'debug' in sys.argv
@@ -84,8 +84,8 @@ class ThreadedCamera(object):
 
     def grab_frame(self):
         if self.status:
-            return detect_axe(self.frame)
-        return [], None  
+            return self.frame
+        return None  
 
 
 
@@ -218,7 +218,7 @@ def get_output(interpreter, score_threshold, image_scale=(1.0, 1.0)):
 
 
 
-def detect_axe(frame):
+def detect_axe(frame, threshold):
     if frame is None:
         log_msg_and_time("EMPTY FRAME RECEIVED")
         return [], frame
@@ -236,7 +236,7 @@ def detect_axe(frame):
     interpreter.invoke()
     log_msg_and_time("Finished Invoking")
 
-    objs = get_output(interpreter, .6, scale)
+    objs = get_output(interpreter, threshold, scale)
 
     log_msg_and_time("Finished Processing Frame")
 
@@ -342,7 +342,7 @@ streamer = ThreadedCamera()
 while True:
     log_msg_and_time("Read Frame")
 
-    boxes, frame = streamer.grab_frame()
+    boxes, frame = detect_axe(streamer.grab_frame(), .6)
 
     if len(boxes) > 0:
         log_msg_and_time("Axe Detected, waiting for min num of detections")
@@ -363,17 +363,15 @@ while True:
             cv2.imwrite("detected"+str(num_detected)+".png", frame)
             num_detected += 1
             num_detected_in_a_row = 0
-
-            while num_empty_in_a_row < MIN_EMPTY_FRAMES:
+            axe_still_in_target = True
+            while axe_still_in_target:
                 log_msg_and_time("Waiting for min num of empty frames")
-                boxes, frame = streamer.grab_frame()
+                boxes, frame = detect_axe(streamer.grab_frame(), .4)
 
                 if frame is None:
                     break
                 if len(boxes) == 0:
-                    num_empty_in_a_row += 1
-                else:
-                    num_empty_in_a_row = 0
+                    axe_still_in_target = False
 
             num_empty_in_a_row = 0
     else:
