@@ -285,10 +285,6 @@ def send_hit_to_target(box):
                 x = new_coords.split(" ")[0]
                 y = new_coords.split(" ")[1]
 
-                print(x)
-                print(y)
-
-
                 data = {'lane':LANE_INDEX,
                         'x':x,
                         'y':y,
