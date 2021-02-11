@@ -14,6 +14,7 @@ MIN_EMPTY_FRAMES=5
 
 DEBUG = 'debug' in sys.argv
 THROW_ONE_AXE = 'one_throw' in sys.argv
+TEST_LINE = 'test' in sys.argv
 
 LANE_INDEX = 0
 
@@ -268,7 +269,12 @@ def send_hit_to_target(box):
             'width':width,
             'height':height}
 
-    HIT_SOCKET.emit('test hit', data)
+    if TEST_LINE:
+        msg = 'test hit'
+    else:
+        msg = 'real hit'
+
+    HIT_SOCKET.emit(msg, data)
 
     log_msg_and_time("Sent Hit to Target")
     if THROW_ONE_AXE:
