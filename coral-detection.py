@@ -12,8 +12,8 @@ from threading import Thread
 MIN_DETECT_FRAMES=2
 MIN_EMPTY_FRAMES=5
 
-DEBUG = 'debug' in sys.argv[1]
-THROW_ONE_AXE = 'one_throw' in sys.argv[2]
+DEBUG = 'debug' in sys.argv
+THROW_ONE_AXE = 'one_throw' in sys.argv
 
 LANE_INDEX = 0
 
