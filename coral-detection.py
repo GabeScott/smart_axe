@@ -10,7 +10,7 @@ import collections
 from threading import Thread
 
 MIN_DETECT_FRAMES=5
-MIN_EMPTY_FRAMES=20
+MIN_EMPTY_FRAMES=40
 
 DEBUG = 'debug' in sys.argv
 THROW_ONE_AXE = 'one_throw' in sys.argv
