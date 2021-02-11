@@ -236,7 +236,7 @@ def detect_axe(frame):
     interpreter.invoke()
     log_msg_and_time("Finished Invoking")
 
-    objs = get_output(interpreter, .6, scale)
+    objs = get_output(interpreter, .7, scale)
 
     log_msg_and_time("Finished Processing Frame")
 
