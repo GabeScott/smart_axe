@@ -268,7 +268,7 @@ def send_hit_to_target(box):
             'width':width,
             'height':height}
 
-    HIT_SOCKET.emit('real hit', data)
+    HIT_SOCKET.emit('test hit', data)
 
     log_msg_and_time("Sent Hit to Target")
 
@@ -278,7 +278,7 @@ streamer = ThreadedCamera()
 
 while True:
     log_msg_and_time("Read Frame")
-    
+
     boxes, frame = detect_axe(cv2.imread("frame.jpg"))
 
     if len(boxes) > 0:
