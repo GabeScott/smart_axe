@@ -9,7 +9,7 @@ import sys
 import collections
 from threading import Thread
 
-MIN_DETECT_FRAMES=2
+MIN_DETECT_FRAMES=1
 MIN_EMPTY_FRAMES=30
 
 DEBUG = 'debug' in sys.argv
@@ -342,7 +342,7 @@ streamer = ThreadedCamera()
 while True:
     log_msg_and_time("Read Frame")
 
-    boxes, frame = detect_axe(streamer.grab_frame(), .6)
+    boxes, frame = detect_axe(streamer.grab_frame(), .5)
 
     if len(boxes) > 0:
         log_msg_and_time("Axe Detected, waiting for min num of detections")
@@ -366,7 +366,7 @@ while True:
             axe_still_in_target = True
             while axe_still_in_target:
                 log_msg_and_time("Waiting for min num of empty frames")
-                boxes, frame = detect_axe(streamer.grab_frame(), .4)
+                boxes, frame = detect_axe(streamer.grab_frame(), .3)
 
                 if frame is None:
                     break
