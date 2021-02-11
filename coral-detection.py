@@ -8,7 +8,6 @@ from datetime import datetime
 import sys
 import collections
 from threading import Thread
-import os
 
 MIN_DETECT_FRAMES=2
 MIN_EMPTY_FRAMES=5
@@ -78,18 +77,12 @@ class ThreadedCamera(object):
         while True:
             if self.capture.isOpened():
                 self.status, self.frame = self.capture.read()
-                cv2.imwrite("frame.jpg", self.frame)
             time.sleep(self.FPS)
 
     def grab_frame(self):
         if self.status:
             return detect_axe(self.frame)
         return [], None  
-
-    def grab_only_frame(self):
-        if self.status:
-            return self.frame
-        return None  
 
 
 
@@ -285,10 +278,7 @@ streamer = ThreadedCamera()
 while True:
     log_msg_and_time("Read Frame")
 
-
-    while os.stat('frame.jpg').st_size == 0:
-        if os.stat('frame.jpg').st_size != 0:
-            boxes, frame = detect_axe(cv2.imread("frame.jpg"))
+    boxes, frame = streamer.grab_frame()
 
     if len(boxes) > 0:
         log_msg_and_time("Axe Detected, waiting for min num of detections")
@@ -312,9 +302,7 @@ while True:
 
             while num_empty_in_a_row < MIN_EMPTY_FRAMES:
                 log_msg_and_time("Waiting for min num of empty frames")
-                while os.stat('frame.jpg').st_size == 0:
-                    if os.stat('frame.jpg').st_size != 0:
-                        boxes, frame = detect_axe(cv2.imread("frame.jpg"))
+                boxes, frame = streamer.grab_frame()
 
                 if frame is None:
                     break
