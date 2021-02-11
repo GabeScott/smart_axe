@@ -12,7 +12,7 @@ from threading import Thread
 MIN_DETECT_FRAMES=2
 MIN_EMPTY_FRAMES=5
 
-DEBUG = True
+DEBUG = False
 
 LANE_INDEX = 0
 
@@ -270,6 +270,7 @@ def send_hit_to_target(box):
     HIT_SOCKET.emit('test hit', data)
 
     log_msg_and_time("Sent Hit to Target")
+    sys.exit(0)
 
 
 
