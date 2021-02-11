@@ -236,7 +236,7 @@ def detect_axe(frame):
     interpreter.invoke()
     log_msg_and_time("Finished Invoking")
 
-    objs = get_output(interpreter, .7, scale)
+    objs = get_output(interpreter, .6, scale)
 
     log_msg_and_time("Finished Processing Frame")
 
@@ -294,10 +294,10 @@ def adjust_y_coord(x, y):
 
 def send_hit_to_target(box):
     log_msg_and_time("About To Send Hit")
-    x = str(box[0])
-    y = str(box[1])
-    # x = str(adjust_x_coord(box[0], box[1]))
-    # y = str(adjust_y_coord(box[0], box[1]))
+    # x = str(box[0])
+    # y = str(box[1])
+    x = str(adjust_x_coord(box[0], box[1]))
+    y = str(adjust_y_coord(box[0], box[1]))
     width = str(box[2]/5.0)
     height = str(box[3])
 
