@@ -343,7 +343,7 @@ while True:
     log_msg_and_time("Read Frame")
 
     boxes, frame = detect_axe(streamer.grab_frame(), .45)
-    cv2.imshow(frame)
+    cv2.imshow("title",frame)
     cv2.waitKey(0) 
 
     if len(boxes) > 0:
