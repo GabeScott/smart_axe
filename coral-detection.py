@@ -245,8 +245,6 @@ def detect_axe(frame):
 
     box = objs[0].bbox
 
-    print(objs[0].score)
-
     xmin = box.xmin
     xmax = box.xmax
     ymin = box.ymin
@@ -286,6 +284,10 @@ def send_hit_to_target(box):
             else:
                 x = new_coords.split(" ")[0]
                 y = new_coords.split(" ")[1]
+
+                print(x)
+                print(y)
+
 
                 data = {'lane':LANE_INDEX,
                         'x':x,
