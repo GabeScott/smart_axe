@@ -15,6 +15,7 @@ MIN_EMPTY_FRAMES=5
 DEBUG = 'debug' in sys.argv
 THROW_ONE_AXE = 'one_throw' in sys.argv
 TEST_LINE = 'test' in sys.argv
+ADJ_COORDS = 'adj_coords' in sys.argv
 
 LANE_INDEX = 0
 
@@ -275,6 +276,23 @@ def send_hit_to_target(box):
         msg = 'real hit'
 
     HIT_SOCKET.emit(msg, data)
+
+    if ADJ_COORDS:
+        keep_trying = True
+        while keep_trying:
+            new_coords = input("Enter x y or QUIT to exit")
+            if new_coords == 'QUIT':
+                keep_trying = False
+            else:
+                x = new_coords.split(" ")[0]
+                y = new_coords.split(" ")[1]
+
+                data = {'lane':LANE_INDEX,
+                        'x':x,
+                        'y':y,
+                        'width':width,
+                        'height':height}
+                HIT_SOCKET.emit(msg, data)
 
     log_msg_and_time("Sent Hit to Target")
     if THROW_ONE_AXE:
