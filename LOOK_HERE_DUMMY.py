@@ -1,3 +1,4 @@
+from socketIO_client_nexus import SocketIO
 HIT_SOCKET = SocketIO('http://34.227.251.88', 3000)
 
 
