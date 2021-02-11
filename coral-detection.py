@@ -343,9 +343,9 @@ while True:
     log_msg_and_time("Read Frame")
 
     boxes, frame = detect_axe(streamer.grab_frame(), .45)
-    if frame is not None:
-        cv2.imshow("title",frame)
-        cv2.waitKey(0) 
+    # if frame is not None:
+    #     cv2.imshow("title",frame)
+    #     cv2.waitKey(0) 
 
     if len(boxes) > 0:
         log_msg_and_time("Axe Detected, waiting for min num of detections")
@@ -375,6 +375,8 @@ while True:
                     break
                 if len(boxes) == 0:
                     axe_still_in_target = False
+
+            time.sleep(1)
 
             num_empty_in_a_row = 0
     else:
