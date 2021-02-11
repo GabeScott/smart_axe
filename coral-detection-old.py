@@ -70,7 +70,7 @@ def transform_image(x, y, w, h, img):
 
 def get_original_points(x, y, w, h):
     source = [[0,0],[320,0],[0,320],[320,320]]
-    dest = [[0,0],[1080,0],[0,1920],[1080,1920]]
+    dest = [[0,0],[480,0],[0,640],[480,640]]
     M = cv2.getPerspectiveTransform(np.float32(source),np.float32(dest))
 
     points_to_transform = np.float32([[[x,y]], [[x+w, y+h]]])
@@ -148,7 +148,7 @@ def send_hit_to_target(box):
 
     print(data)
 
-    HIT_SOCKET.emit('real hit', data)
+    HIT_SOCKET.emit('test hit', data)
 
     log_msg_and_time("Sent Hit to Target")
     
