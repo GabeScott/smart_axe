@@ -341,7 +341,7 @@ def send_hit_to_target(box):
 streamer = ThreadedCamera()
 
 while True:
-    # time.sleep(0.15)
+    time.sleep(0.1)
     log_msg_and_time("Read Frame")
 
     boxes, frame = detect_axe(streamer.grab_frame(), .5)
@@ -367,7 +367,7 @@ while True:
             num_detected_in_a_row = 0
             axe_still_in_target = True
             while axe_still_in_target:
-                # time.sleep(0.15)
+                time.sleep(0.1)
                 log_msg_and_time("Waiting for min num of empty frames")
                 boxes, frame = detect_axe(streamer.grab_frame(), .3)
 
