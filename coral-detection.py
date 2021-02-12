@@ -245,7 +245,7 @@ def detect_axe(frame, threshold):
 
     box = objs[0].bbox
 
-    log_msg_and_time(objs[0].score, True)
+    # log_msg_and_time(objs[0].score, True)
 
     xmin = box.xmin
     xmax = box.xmax
