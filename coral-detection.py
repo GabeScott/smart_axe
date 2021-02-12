@@ -343,7 +343,7 @@ while True:
     time.sleep(0.15)
     log_msg_and_time("Read Frame")
 
-    boxes, frame = detect_axe(streamer.grab_frame(), .6)
+    boxes, frame = detect_axe(streamer.grab_frame(), .7)
 
     if len(boxes) > 0:
         log_msg_and_time("Axe Detected, waiting for min num of detections")
