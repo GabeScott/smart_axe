@@ -19,38 +19,21 @@ ADJ_COORDS = 'adj_coords' in sys.argv
 
 LANE_INDEX = 0
 
-# url = 'http://35.180.193.246:80'
+with open('calibration_coordinates.txt', 'r') as file:
+    text = file.readlines()[0]
+    SOURCE_COORDS = json.loads(text)
 
-#FOR 480x640
-SOURCE_COORDS = [[103, 76], [411, 143], [108, 611], [407, 486]] 
 DIM = (480, 640)
-
-#FOR 720x1080
-#SOURCE_COORDS = [[148, 185], [616, 329], [165, 997], [620, 846]] 
-#DIM = (720, 1080)
-
-#FOR 1080x1920
-# SOURCE_COORDS = [[427, 597], [1008, 723], [392, 1650], [980, 1438]]
-# DIM = (1080, 1920)
 
 DEST_COORDS = [[0,0],[640,0],[0,640],[640,640]]
 
-FPS_LIMIT = 30
-
-# cap = cv2.VideoCapture(0)
-# cap.set(cv2.CAP_PROP_FRAME_WIDTH, DIM[1])
-# cap.set(cv2.CAP_PROP_FRAME_HEIGHT, DIM[0])
-# cap.set(cv2.CAP_PROP_BUFFERSIZE, 3)
-
 num_detected = 0
 num_detected_in_a_row = 0
-num_empty_in_a_row = 0
 
 Object = collections.namedtuple('Object', ['id', 'score', 'bbox'])
 
 model_file = 'smart_axe_edgetpu.tflite'
 
-# interpreter = tflite.Interpreter(model_path=model_file)
 interpreter = tflite.Interpreter(model_path=model_file,
         experimental_delegates=[tflite.load_delegate('libedgetpu.so.1')])
 interpreter.allocate_tensors()
@@ -66,9 +49,6 @@ class ThreadedCamera(object):
         self.capture.set(cv2.CAP_PROP_BUFFERSIZE, 1)
         self.capture.set(cv2.CAP_PROP_FPS, 30)
 
-        self.FPS = 1/30
-        self.FPS_MS = int(self.FPS * 1000)
-
         self.thread = Thread(target = self.update, args = ())
         self.thread.daemon = True
         self.thread.start()
@@ -81,7 +61,6 @@ class ThreadedCamera(object):
         while True:
             if self.capture.isOpened():
                 self.status, self.frame = self.capture.read()
-            # time.sleep(self.FPS)
 
     def grab_frame(self):
         if self.status:
@@ -246,7 +225,7 @@ def detect_axe(frame, threshold):
 
     box = objs[0].bbox
 
-    # log_msg_and_time(objs[0].score, True)
+    log_msg_and_time(objs[0].score)
 
     xmin = box.xmin
     xmax = box.xmax
@@ -381,6 +360,5 @@ while True:
 
             time.sleep(3)
 
-            num_empty_in_a_row = 0
     else:
         num_detected_in_a_row = 0
