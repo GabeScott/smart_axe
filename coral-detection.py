@@ -151,8 +151,8 @@ class BBox(collections.namedtuple('BBox', ['xmin', 'ymin', 'xmax', 'ymax'])):
 
 
 
-def log_msg_and_time(msg):
-    if DEBUG:
+def log_msg_and_time(msg, temp = False):
+    if DEBUG or temp:
         print(msg)
         print(datetime.utcnow().isoformat(sep=' ', timespec='milliseconds'))
 
@@ -245,7 +245,7 @@ def detect_axe(frame, threshold):
 
     box = objs[0].bbox
 
-    print(objs[0].score)
+    log_msg_and_time(objs[0].score, True)
 
     xmin = box.xmin
     xmax = box.xmax
