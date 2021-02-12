@@ -9,7 +9,7 @@ import sys
 import collections
 from threading import Thread
 
-MIN_DETECT_FRAMES=1
+MIN_DETECT_FRAMES=3
 MIN_EMPTY_FRAMES=30
 
 DEBUG = 'debug' in sys.argv
@@ -64,6 +64,7 @@ class ThreadedCamera(object):
         self.capture.set(cv2.CAP_PROP_FRAME_WIDTH, DIM[1])
         self.capture.set(cv2.CAP_PROP_FRAME_HEIGHT, DIM[0])
         self.capture.set(cv2.CAP_PROP_BUFFERSIZE, 1)
+        self.capture.set(cv2.CAP_PROP_FPS, 30)
 
         self.FPS = 1/30
         self.FPS_MS = int(self.FPS * 1000)
@@ -245,7 +246,7 @@ def detect_axe(frame, threshold):
 
     box = objs[0].bbox
 
-    # log_msg_and_time(objs[0].score, True)
+    log_msg_and_time(objs[0].score, True)
 
     xmin = box.xmin
     xmax = box.xmax
@@ -340,7 +341,7 @@ def send_hit_to_target(box):
 streamer = ThreadedCamera()
 
 while True:
-    time.sleep(0.15)
+    # time.sleep(0.15)
     log_msg_and_time("Read Frame")
 
     boxes, frame = detect_axe(streamer.grab_frame(), .5)
@@ -366,7 +367,7 @@ while True:
             num_detected_in_a_row = 0
             axe_still_in_target = True
             while axe_still_in_target:
-                time.sleep(0.15)
+                # time.sleep(0.15)
                 log_msg_and_time("Waiting for min num of empty frames")
                 boxes, frame = detect_axe(streamer.grab_frame(), .3)
 
