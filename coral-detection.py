@@ -294,9 +294,9 @@ def adjust_y_coord(x, y):
 
 def send_hit_to_target(box):
     log_msg_and_time("About To Send Hit")
-    # x = str(box[0])
+    x = str(box[0])
     # y = str(box[1])
-    x = str(adjust_x_coord(box[0], box[1]))
+    # x = str(adjust_x_coord(box[0], box[1]))
     y = str(adjust_y_coord(box[0], box[1]))
     width = str(box[2]/5.0)
     height = str(box[3])
@@ -340,10 +340,10 @@ def send_hit_to_target(box):
 streamer = ThreadedCamera()
 
 while True:
-    time.sleep(0.1)
+    time.sleep(0.15)
     log_msg_and_time("Read Frame")
 
-    boxes, frame = detect_axe(streamer.grab_frame(), .45)
+    boxes, frame = detect_axe(streamer.grab_frame(), .5)
 
     if len(boxes) > 0:
         log_msg_and_time("Axe Detected, waiting for min num of detections")
@@ -366,7 +366,7 @@ while True:
             num_detected_in_a_row = 0
             axe_still_in_target = True
             while axe_still_in_target:
-                time.sleep(0.1)
+                time.sleep(0.15)
                 log_msg_and_time("Waiting for min num of empty frames")
                 boxes, frame = detect_axe(streamer.grab_frame(), .3)
 
