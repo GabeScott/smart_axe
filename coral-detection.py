@@ -352,7 +352,7 @@ while True:
             while axe_still_in_target:
                 time.sleep(0.15)
                 log_msg_and_time("Waiting for min num of empty frames")
-                boxes, frame = detect_axe(streamer.grab_frame(), .3)
+                boxes, frame = detect_axe(streamer.grab_frame(), .1)
 
                 if frame is None:
                     break
