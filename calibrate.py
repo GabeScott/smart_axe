@@ -51,6 +51,7 @@ input("Image saved. Ready to capture calibration coordinates. Press enter when r
 
 frame = cv2.imread("calibration_pic.jpg")
 
+cv2.namedWindow('Calibrate')
 cv2.setMouseCallback('Calibrate', capture_coords)
 cv2.imshow("Calibrate", frame)
 cv2.waitKey(0)
