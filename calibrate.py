@@ -16,6 +16,10 @@ num_captured = 0
 
 
 def capture_coords(event, x, y, flags, param):
+	global num_captured
+	global coord_text
+	global coords
+		
 	if num_captured == 4:
 		response = input("All coords have been captured. Would you like to restart? YES or NO.")
 		if response == 'YES':
