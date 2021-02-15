@@ -19,7 +19,7 @@ def capture_coords(event, x, y, flags, param):
 	global num_captured
 	global coord_text
 	global coords
-		
+
 	if num_captured == 4:
 		response = input("All coords have been captured. Would you like to restart? YES or NO.")
 		if response == 'YES':
@@ -35,12 +35,12 @@ def capture_coords(event, x, y, flags, param):
 		num_captured += 1
 
 		if num_captured == 4:
-			print("All coordinates captured. Please exit window to continue.")
+			print("All coordinates captured. Press any key to continue.")
 
 
 
-# input("Please make sure target is displayed. Press enter when ready.")
-# time.sleep(10)
+input("Please make sure target is displayed. Press enter when ready.")
+time.sleep(10)
 
 ret, frame = cap.read()
 
