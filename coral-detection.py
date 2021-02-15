@@ -226,7 +226,7 @@ def detect_axe(frame, threshold):
 
     box = objs[0].bbox
 
-    log_msg_and_time(objs[0].score)
+    log_msg_and_time(objs[0].score, True)
 
     xmin = box.xmin
     xmax = box.xmax
@@ -324,7 +324,7 @@ while True:
     time.sleep(0.15)
     log_msg_and_time("Read Frame")
 
-    boxes, frame = detect_axe(streamer.grab_frame(), .5)
+    boxes, frame = detect_axe(streamer.grab_frame(), .4)
 
     if len(boxes) > 0:
         log_msg_and_time("Axe Detected, waiting for min num of detections")
