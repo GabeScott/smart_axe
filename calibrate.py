@@ -35,8 +35,8 @@ def capture_coords(event, x, y, flags, param):
 
 
 
-input("Please make sure target is displayed. Press enter when ready.")
-time.sleep(10)
+# input("Please make sure target is displayed. Press enter when ready.")
+# time.sleep(10)
 
 ret, frame = cap.read()
 
