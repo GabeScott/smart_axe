@@ -32,7 +32,7 @@ num_detected_in_a_row = 0
 
 Object = collections.namedtuple('Object', ['id', 'score', 'bbox'])
 
-model_file = 'smart_axe_edgetpu24.tflite'
+model_file = 'smart_axe_edgetpu.tflite'
 
 interpreter = tflite.Interpreter(model_path=model_file,
         experimental_delegates=[tflite.load_delegate('libedgetpu.so.1')])
