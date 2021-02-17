@@ -32,10 +32,11 @@ num_detected_in_a_row = 0
 
 Object = collections.namedtuple('Object', ['id', 'score', 'bbox'])
 
-model_file = 'smart_axe_edgetpu1.tflite'
+model_file = 'smart_axe_edgetpu.tflite'
 
 interpreter = tflite.Interpreter(model_path=model_file,
         experimental_delegates=[tflite.load_delegate('libedgetpu.so.1')])
+
 interpreter.allocate_tensors()
 
 HIT_SOCKET = SocketIO('http://34.227.251.88', 3000)
