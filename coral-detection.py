@@ -10,7 +10,7 @@ import collections
 from threading import Thread
 import json
 
-MIN_DETECT_FRAMES=5
+MIN_DETECT_FRAMES=1
 MIN_EMPTY_FRAMES=30
 
 DEBUG = 'debug' in sys.argv
@@ -19,7 +19,6 @@ TEST_LINE = 'test' in sys.argv
 ADJ_COORDS = 'adj_coords' in sys.argv
 
 LANE_INDEX = 0
-COORDS_TO_AVG = []
 
 with open('calibration_coordinates.txt', 'r') as file:
     text = file.readlines()[0]
@@ -221,7 +220,7 @@ def detect_axe(frame, threshold):
 
     box = objs[0].bbox
 
-    log_msg_and_time(objs[0].score)
+    log_msg_and_time(objs[0].score, True)
 
     xmin = box.xmin
     xmax = box.xmax
@@ -310,20 +309,6 @@ def send_hit_to_target(box):
         sys.exit(0)
 
 
-def average_coords(coords):
-    total = float(len(coords))
-    sums = [0,0,0,0]
-
-    for coord in coords:
-        for i in range(len(coord)):
-            sums[i] += coord[i]
-
-    for i in range(len(sums)):
-        sums[i] = float(sums[i]/total)
-
-    return sums
-
-
 streamer = ThreadedCamera()
 
 while True:
@@ -335,10 +320,7 @@ while True:
     if len(boxes) > 0:
         log_msg_and_time("Axe Detected, waiting for min num of detections")
         num_detected_in_a_row += 1
-        COORDS_TO_AVG.append(boxes)
         if num_detected_in_a_row == MIN_DETECT_FRAMES:
-
-            boxes = average_coords(COORDS_TO_AVG)
 
             log_msg_and_time("Axe Detected for " + str(MIN_DETECT_FRAMES) + " Frames")
             
@@ -361,7 +343,7 @@ while True:
             while axe_still_in_target:
                 time.sleep(0.15)
                 log_msg_and_time("Waiting for min num of empty frames")
-                boxes, frame = detect_axe(streamer.grab_frame(), .05)
+                boxes, frame = detect_axe(streamer.grab_frame(), .1)
 
                 if frame is None:
                     break
@@ -369,7 +351,6 @@ while True:
                     axe_still_in_target = False
 
             time.sleep(2)
-            COORDS_TO_AVG = []
 
     else:
         num_detected_in_a_row = 0
