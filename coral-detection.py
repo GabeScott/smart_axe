@@ -32,7 +32,7 @@ num_detected_in_a_row = 0
 
 Object = collections.namedtuple('Object', ['id', 'score', 'bbox'])
 
-model_file = 'smart_axe_edgetpu.tflite'
+model_file = 'smart_axe_edgetpu1.tflite'
 
 interpreter = tflite.Interpreter(model_path=model_file,
         experimental_delegates=[tflite.load_delegate('libedgetpu.so.1')])
@@ -315,7 +315,7 @@ while True:
     time.sleep(0.15)
     log_msg_and_time("Read Frame")
 
-    boxes, frame = detect_axe(streamer.grab_frame(), .01)
+    boxes, frame = detect_axe(streamer.grab_frame(), .1)
 
     if len(boxes) > 0:
         log_msg_and_time("Axe Detected, waiting for min num of detections")
