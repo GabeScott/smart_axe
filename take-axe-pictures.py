@@ -43,4 +43,5 @@ while True:
 
     frame = streamer.grab_frame()
     num_detected += 1
+    frame = cv2.rotate(frame, cv2.ROTATE_90_COUNTERCLOCKWISE)
     cv2.imwrite("axe"+str(num_detected) + ".jpg", frame)
