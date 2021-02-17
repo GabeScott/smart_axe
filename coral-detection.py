@@ -10,7 +10,7 @@ import collections
 from threading import Thread
 import json
 
-MIN_DETECT_FRAMES=1
+MIN_DETECT_FRAMES=5
 MIN_EMPTY_FRAMES=30
 
 DEBUG = 'debug' in sys.argv
@@ -19,13 +19,13 @@ TEST_LINE = 'test' in sys.argv
 ADJ_COORDS = 'adj_coords' in sys.argv
 
 LANE_INDEX = 0
+COORDS_TO_AVG = []
 
 with open('calibration_coordinates.txt', 'r') as file:
     text = file.readlines()[0]
     SOURCE_COORDS = json.loads(text)
 
 DIM = (480, 640)
-
 DEST_COORDS = [[0,0],[640,0],[0,640],[640,640]]
 
 num_detected = 0
@@ -67,8 +67,6 @@ class ThreadedCamera(object):
         if self.status:
             return self.frame
         return None  
-
-
 
 
 class BBox(collections.namedtuple('BBox', ['xmin', 'ymin', 'xmax', 'ymax'])):
@@ -129,7 +127,6 @@ class BBox(collections.namedtuple('BBox', ['xmin', 'ymin', 'xmax', 'ymax'])):
             return 0.0
         area = intersection.area
         return area / (a.area + b.area - area)
-
 
 
 def log_msg_and_time(msg, temp = False):
@@ -197,8 +194,6 @@ def get_output(interpreter, score_threshold, image_scale=(1.0, 1.0)):
     return [make(i) for i in range(count) if scores[i] >= score_threshold]
 
 
-
-
 def detect_axe(frame, threshold):
     if frame is None:
         log_msg_and_time("EMPTY FRAME RECEIVED")
@@ -258,7 +253,6 @@ def adjust_x_coord(x, y):
     return new_x
 
 
-
 def adjust_y_coord(x, y):
     new_y = y
 
@@ -270,7 +264,6 @@ def adjust_y_coord(x, y):
         new_y -= 2
 
     return new_y
-
 
 
 def send_hit_to_target(box):
@@ -317,6 +310,19 @@ def send_hit_to_target(box):
         sys.exit(0)
 
 
+def average_coords(coords):
+    total = float(len(coords))
+    sums = [0,0,0,0]
+
+    for coord in coords:
+        for i in range(len(coord)):
+            sums[i] += coord[i]
+
+    for i in range(len(sums)):
+        sums[i] = float(sums[i]/total)
+
+    return sums
+
 
 streamer = ThreadedCamera()
 
@@ -329,7 +335,10 @@ while True:
     if len(boxes) > 0:
         log_msg_and_time("Axe Detected, waiting for min num of detections")
         num_detected_in_a_row += 1
+        COORDS_TO_AVG.append(boxes)
         if num_detected_in_a_row == MIN_DETECT_FRAMES:
+
+            boxes = average_coords(COORDS_TO_AVG)
 
             log_msg_and_time("Axe Detected for " + str(MIN_DETECT_FRAMES) + " Frames")
             
@@ -360,6 +369,7 @@ while True:
                     axe_still_in_target = False
 
             time.sleep(2)
+            COORDS_TO_AVG = []
 
     else:
         num_detected_in_a_row = 0
