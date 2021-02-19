@@ -176,6 +176,7 @@ def get_output(interpreter, score_threshold, image_scale=(1.0, 1.0)):
     class_ids = output_tensor(interpreter, 1)
     scores = output_tensor(interpreter, 2)
     count = int(output_tensor(interpreter, 3))
+    print(count)
 
     width, height = input_size(interpreter)
     image_scale_x, image_scale_y = image_scale
@@ -220,7 +221,6 @@ def detect_axe(frame, threshold):
         return [], frame_fixed
 
     box = objs[0].bbox
-    print(len(objs))
 
     log_msg_and_time(objs[0].score)
 
