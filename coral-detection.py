@@ -255,10 +255,10 @@ def adjust_y_coord(x, y):
 
 def send_hit_to_target(box):
     log_msg_and_time("About To Send Hit")
-    # x = str(box[0])
-    # y = str(box[1])
-    x = str(adjust_x_coord(box[0], box[1]))
-    y = str(adjust_y_coord(box[0], box[1]))
+    x = str(box[0])
+    y = str(box[1])
+    # x = str(adjust_x_coord(box[0], box[1]))
+    # y = str(adjust_y_coord(box[0], box[1]))
     width = str(box[2]/5.0)
     height = str(box[3])
 
