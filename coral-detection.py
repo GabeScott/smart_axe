@@ -176,7 +176,7 @@ def get_output(interpreter, score_threshold, image_scale=(1.0, 1.0)):
     class_ids = output_tensor(interpreter, 1)
     scores = output_tensor(interpreter, 2)
     count = int(output_tensor(interpreter, 3))
-    print(count)
+    print(len(scores))
 
     width, height = input_size(interpreter)
     image_scale_x, image_scale_y = image_scale
