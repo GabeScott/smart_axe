@@ -236,6 +236,8 @@ def adjust_x_coord(x, y):
 
     if y > 400:
         new_x += 10
+    elif y > 200:
+        new_x += 5
         
     return new_x
 
@@ -245,6 +247,8 @@ def adjust_y_coord(x, y):
 
     if y > 400:
         new_y -= 20
+    elif y > 200:
+        new_y -= 10
 
     return new_y
 
