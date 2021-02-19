@@ -220,7 +220,7 @@ def detect_axe(frame, threshold):
         return [], frame_fixed
 
     box = objs[0].bbox
-    print(objs)
+    print(len(objs))
 
     log_msg_and_time(objs[0].score)
 
