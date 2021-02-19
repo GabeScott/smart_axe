@@ -234,44 +234,27 @@ def detect_axe(frame, threshold):
 def adjust_x_coord(x, y):
     new_x = x
 
-    if x < 300:
-        if y > 400:
-            new_x += 21
-        else:
-            new_x += 1
-    elif x < 500:
-        if y < 500:
-            new_x -= 17
-        else:
-            new_x += 10
-    else:
-        if y < 500:
-            new_x -= 44
-        else:
-            new_x += 5
-
+    if y > 400:
+        new_x += 10
+        
     return new_x
 
 
 def adjust_y_coord(x, y):
     new_y = y
 
-    if y > 390:
-        new_y -= 52
-    elif y > 200:
-        new_y -= 21
-    else:
-        new_y -= 2
+    if y > 400:
+        new_y -= 20
 
     return new_y
 
 
 def send_hit_to_target(box):
     log_msg_and_time("About To Send Hit")
-    x = str(box[0])
-    y = str(box[1])
-    # x = str(adjust_x_coord(box[0], box[1]))
-    # y = str(adjust_y_coord(box[0], box[1]))
+    # x = str(box[0])
+    # y = str(box[1])
+    x = str(adjust_x_coord(box[0], box[1]))
+    y = str(adjust_y_coord(box[0], box[1]))
     width = str(box[2]/5.0)
     height = str(box[3])
 
