@@ -10,7 +10,7 @@ import collections
 from threading import Thread
 import json
 
-MIN_DETECT_FRAMES=1
+MIN_DETECT_FRAMES=2
 MIN_EMPTY_FRAMES=30
 
 DEBUG = 'debug' in sys.argv
