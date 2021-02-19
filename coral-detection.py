@@ -214,7 +214,7 @@ def detect_axe(frame, threshold):
 
     objs = get_output(interpreter, threshold, scale)
 
-    log_msg_and_time("Finished Processing Frame", True)
+    log_msg_and_time("Finished Processing Frame")
 
     if not objs:
         return [], frame_fixed
