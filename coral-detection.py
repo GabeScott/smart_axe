@@ -194,6 +194,13 @@ def get_output(interpreter, score_threshold, image_scale=(1.0, 1.0)):
     return [make(i) for i in range(count) if scores[i] >= score_threshold]
 
 
+def adjust_for_skew(frame):
+    M = cv2.getPerspectiveTransform(np.float32(SOURCE_COORDS),np.float32(DEST_COORDS))
+    adjusted_frame = cv2.warpPerspective(frame, M, (DEST_COORDS[3][0],DEST_COORDS[3][1]))
+
+    return adjusted_frame
+
+
 def detect_axe(frame, threshold):
     if frame is None:
         log_msg_and_time("EMPTY FRAME RECEIVED")
@@ -202,7 +209,7 @@ def detect_axe(frame, threshold):
     global interpreter
     log_msg_and_time("About To Process Frame")
 
-    frame_fixed = cv2.rotate(frame, cv2.ROTATE_90_COUNTERCLOCKWISE)
+    frame_fixed = adjust_for_skew(cv2.rotate(frame, cv2.ROTATE_90_COUNTERCLOCKWISE))
     cv2.imwrite("frame.jpg", frame_fixed)
 
     image = Image.open("frame.jpg")
