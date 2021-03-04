@@ -266,7 +266,7 @@ def send_hit_to_target(box):
     y = str(box[1])
     # x = str(adjust_x_coord(box[0], box[1]))
     # y = str(adjust_y_coord(box[0], box[1]))
-    width = str(box[2]/5.0)
+    width = str(box[2]/50.0)
     height = str(box[3])
 
     data = {'lane':LANE_INDEX,
