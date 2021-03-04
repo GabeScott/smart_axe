@@ -25,7 +25,7 @@ with open('calibration_coordinates.txt', 'r') as file:
     SOURCE_COORDS = json.loads(text)
 
 DIM = (480, 640)
-DEST_COORDS = [[0,0],[640,0],[0,640],[640,640]]
+DEST_COORDS = [[34,108],[465,108],[41,544],[461,536]]
 
 num_detected = 0
 num_detected_in_a_row = 0
@@ -196,7 +196,7 @@ def get_output(interpreter, score_threshold, image_scale=(1.0, 1.0)):
 
 def adjust_for_skew(frame):
     M = cv2.getPerspectiveTransform(np.float32(SOURCE_COORDS),np.float32(DEST_COORDS))
-    adjusted_frame = cv2.warpPerspective(frame, M, (DEST_COORDS[3][0],DEST_COORDS[3][1]))
+    adjusted_frame = cv2.warpPerspective(frame, M, (130,430))
 
     return adjusted_frame
 
@@ -209,8 +209,8 @@ def detect_axe(frame, threshold):
     global interpreter
     log_msg_and_time("About To Process Frame")
 
-    # frame_fixed = adjust_for_skew(cv2.rotate(frame, cv2.ROTATE_90_COUNTERCLOCKWISE))
-    frame_fixed = cv2.rotate(frame, cv2.ROTATE_90_COUNTERCLOCKWISE)
+    frame_fixed = adjust_for_skew(cv2.rotate(frame, cv2.ROTATE_90_COUNTERCLOCKWISE))
+    # frame_fixed = cv2.rotate(frame, cv2.ROTATE_90_COUNTERCLOCKWISE)
     cv2.imwrite("frame.jpg", frame_fixed)
 
     image = Image.open("frame.jpg")
@@ -329,8 +329,8 @@ while True:
                 print("RESET")
 
             
-            points_to_send = [transformed_points[0][0][0], transformed_points[0][0][1], transformed_points[1][0][0]-transformed_points[0][0][0], transformed_points[1][0][1]-transformed_points[0][0][1]]
-            # points_to_send = boxes
+            # points_to_send = [transformed_points[0][0][0], transformed_points[0][0][1], transformed_points[1][0][0]-transformed_points[0][0][0], transformed_points[1][0][1]-transformed_points[0][0][1]]
+            points_to_send = boxes
             send_hit_to_target(points_to_send)
 
             cv2.imwrite("detected"+str(num_detected)+".png", frame)
