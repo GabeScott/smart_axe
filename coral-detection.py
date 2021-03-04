@@ -196,7 +196,7 @@ def get_output(interpreter, score_threshold, image_scale=(1.0, 1.0)):
 
 def adjust_for_skew(frame):
     M = cv2.getPerspectiveTransform(np.float32(SOURCE_COORDS),np.float32(DEST_COORDS))
-    adjusted_frame = cv2.warpPerspective(frame, M, (130,430))
+    adjusted_frame = cv2.warpPerspective(frame, M, (480,640))
 
     return adjusted_frame
 
