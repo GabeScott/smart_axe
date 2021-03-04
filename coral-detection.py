@@ -210,8 +210,8 @@ def detect_axe(frame, threshold):
     global interpreter
     log_msg_and_time("About To Process Frame")
 
-    frame_fixed = adjust_for_skew(cv2.rotate(frame, cv2.ROTATE_90_COUNTERCLOCKWISE))
-    # frame_fixed = cv2.rotate(frame, cv2.ROTATE_90_COUNTERCLOCKWISE)
+    # frame_fixed = adjust_for_skew(cv2.rotate(frame, cv2.ROTATE_90_COUNTERCLOCKWISE))
+    frame_fixed = cv2.rotate(frame, cv2.ROTATE_90_COUNTERCLOCKWISE)
     cv2.imwrite("frame.jpg", frame_fixed)
 
     image = Image.open("frame.jpg")
