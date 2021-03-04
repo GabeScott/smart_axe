@@ -25,7 +25,8 @@ with open('calibration_coordinates.txt', 'r') as file:
     SOURCE_COORDS = json.loads(text)
 
 DIM = (480, 640)
-DEST_COORDS = [[34,108],[465,108],[41,544],[461,536]]
+DEST_COORDS = [[0,0],[640,0],[0,640],[640,640]]
+SKEW_COORDS = [[34,108],[465,108],[41,544],[461,536]]
 
 num_detected = 0
 num_detected_in_a_row = 0
@@ -195,7 +196,7 @@ def get_output(interpreter, score_threshold, image_scale=(1.0, 1.0)):
 
 
 def adjust_for_skew(frame):
-    M = cv2.getPerspectiveTransform(np.float32(SOURCE_COORDS),np.float32(DEST_COORDS))
+    M = cv2.getPerspectiveTransform(np.float32(SOURCE_COORDS),np.float32(SKEW_COORDS))
     adjusted_frame = cv2.warpPerspective(frame, M, (480,640))
 
     return adjusted_frame
