@@ -209,7 +209,8 @@ def detect_axe(frame, threshold):
     global interpreter
     log_msg_and_time("About To Process Frame")
 
-    frame_fixed = adjust_for_skew(cv2.rotate(frame, cv2.ROTATE_90_COUNTERCLOCKWISE))
+    # frame_fixed = adjust_for_skew(cv2.rotate(frame, cv2.ROTATE_90_COUNTERCLOCKWISE))
+    frame_fixed = cv2.rotate(frame, cv2.ROTATE_90_COUNTERCLOCKWISE)
     cv2.imwrite("frame.jpg", frame_fixed)
 
     image = Image.open("frame.jpg")
@@ -328,8 +329,8 @@ while True:
                 print("RESET")
 
             
-            # points_to_send = [transformed_points[0][0][0], transformed_points[0][0][1], transformed_points[1][0][0]-transformed_points[0][0][0], transformed_points[1][0][1]-transformed_points[0][0][1]]
-            points_to_send = [boxes[0], boxes[1], boxes[2], boxes[3]]
+            points_to_send = [transformed_points[0][0][0], transformed_points[0][0][1], transformed_points[1][0][0]-transformed_points[0][0][0], transformed_points[1][0][1]-transformed_points[0][0][1]]
+            # points_to_send = boxes
             send_hit_to_target(points_to_send)
 
             cv2.imwrite("detected"+str(num_detected)+".png", frame)
