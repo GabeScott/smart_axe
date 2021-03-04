@@ -327,8 +327,9 @@ while True:
             if boxes[0] <= 80:
                 print("RESET")
 
-
-            points_to_send = [transformed_points[0][0][0], transformed_points[0][0][1], transformed_points[1][0][0]-transformed_points[0][0][0], transformed_points[1][0][1]-transformed_points[0][0][1]]
+            
+            # points_to_send = [transformed_points[0][0][0], transformed_points[0][0][1], transformed_points[1][0][0]-transformed_points[0][0][0], transformed_points[1][0][1]-transformed_points[0][0][1]]
+            points_to_send = [boxes[0], boxes[1], boxes[2], boxes[3]]
             send_hit_to_target(points_to_send)
 
             cv2.imwrite("detected"+str(num_detected)+".png", frame)
