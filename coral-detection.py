@@ -262,9 +262,9 @@ def adjust_y_coord(x, y):
     return new_y
 
 
-def save_bbox(frame, box):
+def save_bbox(frame, box, num_detected):
     cv2.rectangle(frame, (box[0], box[1]), (box[0]+box[2], box[1]+box[3]), (255, 0, 0), 2)
-    cv2.imwrite("frame-with-box.jpg", frame)
+    cv2.imwrite("frame-with-box" + str(num_detected) + ".jpg", frame)
 
 
 def send_hit_to_target(box):
@@ -337,7 +337,7 @@ while True:
             
             points_to_send = [transformed_points[0][0][0], transformed_points[0][0][1], transformed_points[1][0][0]-transformed_points[0][0][0], transformed_points[1][0][1]-transformed_points[0][0][1]]
             send_hit_to_target(points_to_send)
-            save_bbox(frame, boxes)
+            save_bbox(frame, boxes, num_detected)
 
             cv2.imwrite("detected"+str(num_detected)+".png", frame)
             num_detected += 1
