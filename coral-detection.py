@@ -236,7 +236,8 @@ def detect_axe(frame, threshold):
     xmax = box.xmax
     ymin = box.ymin
     ymax = box.ymax
-
+    cv2.rectangle(frame_fixed, (xmin, ymin), (xmax, ymax), (255, 0, 0), 2)
+    v2.imwrite("frame.jpg", frame_fixed)
     return [xmin, ymin, xmax-xmin, ymax-ymin], frame_fixed
 
 
