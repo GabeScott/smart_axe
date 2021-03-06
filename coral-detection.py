@@ -140,7 +140,7 @@ def log_msg_and_time(msg, temp = False):
 def transform_image(x, y, w, h, img, num_detected):
     M = cv2.getPerspectiveTransform(np.float32(SKEW_COORDS),np.float32(DEST_COORDS))
 
-    points_to_transform = np.float32([[[x,y]], [[x+w/10, y+h]]])
+    points_to_transform = np.float32([[[x,y]], [[x+5, y+h]]])
     transformed_points = cv2.perspectiveTransform(points_to_transform, M)
 
     adjusted_frame = cv2.warpPerspective(img, M, (640,640))
