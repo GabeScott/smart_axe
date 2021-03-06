@@ -137,11 +137,14 @@ def log_msg_and_time(msg, temp = False):
         print(datetime.utcnow().isoformat(sep=' ', timespec='milliseconds'))
 
 
-def transform_image(x, y, w, h, img):
+def transform_image(x, y, w, h, img, num_detected):
     M = cv2.getPerspectiveTransform(np.float32(SKEW_COORDS),np.float32(DEST_COORDS))
 
     points_to_transform = np.float32([[[x,y]], [[x+w/10, y+h]]])
     transformed_points = cv2.perspectiveTransform(points_to_transform, M)
+
+    adjusted_frame = cv2.warpPerspective(img, M, (640,640))
+    cv2.imwrite("final-frame"+str(num_detected)+".jpg", adjusted_frame)
 
     return transformed_points
 
@@ -326,7 +329,7 @@ while True:
 
             log_msg_and_time("Axe Detected for " + str(MIN_DETECT_FRAMES) + " Frames")
             
-            transformed_points = transform_image(boxes[0], boxes[1], boxes[2], boxes[3], frame)
+            transformed_points = transform_image(boxes[0], boxes[1], boxes[2], boxes[3], frame, num_detected)
 
             print("Detected at: ("+str(transformed_points[0][0][0]) + ", " + str(transformed_points[0][0][1]) + ")", end='')
             print("  Original Coords: ("+str(boxes[0])+", "+str(boxes[1])+")")
