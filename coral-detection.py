@@ -145,7 +145,7 @@ def transform_image(x, y, w, h, img, num_detected):
 
     adjusted_frame = cv2.warpPerspective(img, M, (640,640))
     cv2.rectangle(adjusted_frame, (transformed_points[0][0][0], transformed_points[0][0][1]), (transformed_points[1][0][0], transformed_points[1][0][1]), (255, 0, 0), 2)
-    cv2.imwrite("final-frame"+str(num_detected)+".jpg", adjusted_frame)
+    cv2.imwrite("final-frames/final-frame"+str(num_detected)+".jpg", adjusted_frame)
 
     return transformed_points
 
@@ -268,7 +268,7 @@ def adjust_y_coord(x, y):
 
 def save_bbox(frame, box, num_detected):
     cv2.rectangle(frame, (box[0], box[1]), (box[0]+box[2], box[1]+box[3]), (255, 0, 0), 2)
-    cv2.imwrite("frame-with-box" + str(num_detected) + ".jpg", frame)
+    cv2.imwrite("frames-with-boxes/frame-with-box" + str(num_detected) + ".jpg", frame)
 
 
 def send_hit_to_target(box):
