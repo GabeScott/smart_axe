@@ -144,7 +144,7 @@ def transform_image(x, y, w, h, img, num_detected):
     transformed_points = cv2.perspectiveTransform(points_to_transform, M)
 
     adjusted_frame = cv2.warpPerspective(img, M, (640,640))
-    cv2.rectangle(frame, (transformed_points[0][0][0], transformed_points[0][0][1]), (transformed_points[1][0][0], transformed_points[1][0][1]), (255, 0, 0), 2)
+    cv2.rectangle(adjusted_frame, (transformed_points[0][0][0], transformed_points[0][0][1]), (transformed_points[1][0][0], transformed_points[1][0][1]), (255, 0, 0), 2)
     cv2.imwrite("final-frame"+str(num_detected)+".jpg", adjusted_frame)
 
     return transformed_points
