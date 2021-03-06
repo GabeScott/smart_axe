@@ -236,8 +236,7 @@ def detect_axe(frame, threshold):
     xmax = box.xmax
     ymin = box.ymin
     ymax = box.ymax
-    cv2.rectangle(frame_fixed, (xmin, ymin), (xmax, ymax), (255, 0, 0), 2)
-    cv2.imwrite("frame.jpg", frame_fixed)
+
     return [xmin, ymin, xmax-xmin, ymax-ymin], frame_fixed
 
 
@@ -263,13 +262,18 @@ def adjust_y_coord(x, y):
     return new_y
 
 
+def save_bbox(frame, box):
+    cv2.rectangle(frame, (box[0], box[1]), (box[0]+box[2], box[1]+box[3]), (255, 0, 0), 2)
+    cv2.imwrite("frame-with-box.jpg", frame)
+
+
 def send_hit_to_target(box):
     log_msg_and_time("About To Send Hit")
     x = str(box[0])
     y = str(box[1])
     # x = str(adjust_x_coord(box[0], box[1]))
     # y = str(adjust_y_coord(box[0], box[1]))
-    width = 5#str(box[2]/5.0)
+    width = 3#str(box[2]/5.0)
     height = str(box[3])
 
     data = {'lane':LANE_INDEX,
@@ -333,6 +337,7 @@ while True:
             
             points_to_send = [transformed_points[0][0][0], transformed_points[0][0][1], transformed_points[1][0][0]-transformed_points[0][0][0], transformed_points[1][0][1]-transformed_points[0][0][1]]
             send_hit_to_target(points_to_send)
+            save_bbox(frame, boxes)
 
             cv2.imwrite("detected"+str(num_detected)+".png", frame)
             num_detected += 1
