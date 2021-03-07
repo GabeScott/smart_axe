@@ -18,12 +18,26 @@ THROW_ONE_AXE = 'one_throw' in sys.argv
 TEST_LINE = 'test' in sys.argv
 ADJ_COORDS = 'adj_coords' in sys.argv
 
+SECTION_COORDS = [
+                  ([],[]),
+                  ([],[]),
+                  ([],[]),
+                  ([],[]),
+                  ([],[]),
+                  ([],[]),
+                  ([],[]),
+                  ([],[]),
+                  ([],[]),
+                  ]
+
 LANE_INDEX = 0
 
 DIM = (480, 640)
 DEST_COORDS = [[0,0],[640,0],[0,640],[640,640]]
 SKEW_COORDS = [[34,108],[465,108],[41,544],[461,536]]
 SOURCE_COORDS = []
+
+SECTION_BOUNDS = [213, 426, 640]
 
 with open('calibration_coordinates.txt', 'r') as file:
     text = file.readlines()[0]
@@ -137,7 +151,7 @@ def log_msg_and_time(msg, temp = False):
         print(datetime.utcnow().isoformat(sep=' ', timespec='milliseconds'))
 
 
-def transform_image(x, y, w, h, img, num_detected):
+def get_axe_section(x, y, w, h, img, num_detected):
     M = cv2.getPerspectiveTransform(np.float32(SKEW_COORDS),np.float32(DEST_COORDS))
 
     points_to_transform = np.float32([[[x,y]], [[x+5, y+h]]])
@@ -147,7 +161,20 @@ def transform_image(x, y, w, h, img, num_detected):
     cv2.rectangle(adjusted_frame, (transformed_points[0][0][0], transformed_points[0][0][1]), (transformed_points[1][0][0], transformed_points[1][0][1]), (255, 0, 0), 2)
     cv2.imwrite("final-frames/final-frame"+str(num_detected)+".jpg", adjusted_frame)
 
-    return transformed_points
+    x = transformed_points[0][0][0]
+    y = transformed_points[0][0][1]
+
+    print("Points Before Correction: (" + str(x) + ", " + str(y) + ")")
+
+    section = 0
+    for y_bound in SECTION_BOUNDS:
+        for x_bound in SECTION_BOUNDS:
+            if x < x_bound and y < y_bound:
+                return section
+            section += 1
+
+
+    return -1
 
 
 def input_size(interpreter):
@@ -315,6 +342,17 @@ def send_hit_to_target(box):
         sys.exit(0)
 
 
+def transform_by_section(section, boxes):
+    source = SECTION_COORDS[section][0]
+    dest = SECTION_COORDS[section][1]
+    M = cv2.getPerspectiveTransform(np.float32(source),np.float32(dest))
+
+    points_to_transform = np.float32([[[box[0],box[1]]], [[box[0]+3, box[1]+box[3]]]])
+    transformed_points = cv2.perspectiveTransform(points_to_transform, M)
+
+    return transformed_points
+
+
 streamer = ThreadedCamera()
 
 while True:
@@ -330,7 +368,8 @@ while True:
 
             log_msg_and_time("Axe Detected for " + str(MIN_DETECT_FRAMES) + " Frames")
             
-            transformed_points = transform_image(boxes[0], boxes[1], boxes[2], boxes[3], frame, num_detected)
+            section = get_axe_section(boxes[0], boxes[1], boxes[2], boxes[3], frame, num_detected)
+            transformed_points = transform_by_section(section, boxes)
 
             print("Detected at: ("+str(transformed_points[0][0][0]) + ", " + str(transformed_points[0][0][1]) + ")", end='')
             print("  Original Coords: ("+str(boxes[0])+", "+str(boxes[1])+")")
