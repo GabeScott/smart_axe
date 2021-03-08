@@ -14,7 +14,7 @@ if __name__ == '__main__':
     # parser.add_argument('out', help='output directory')
     # args = parser.parse_args()
 
-    with open('example_output/calibration.yaml') as fr:
+    with open('calibration.yaml') as fr:
         c = yaml.load(fr)
 
     for fn in [1]:
@@ -28,9 +28,6 @@ if __name__ == '__main__':
         # K_undistort[0:2, 2] = [0., 0.]
         # K_undistort[0, 0] *= 0.3
         # K_undistort[1, 1] *= 0.3
-
-        with open('calibration.yaml') as fr:
-            c = yaml.load(fr)
 
         img_und = cv2.undistort(img, np.array(c['camera_matrix']), np.array(c['dist_coefs']),
                                 newCameraMatrix=np.array(c['camera_matrix']))
