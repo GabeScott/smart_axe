@@ -93,26 +93,9 @@ if __name__ == '__main__':
     print("RMS:" + str(rms))
     print("camera matrix:\n" + str(camera_matrix))
     print("distortion coefficients: " + str(dist_coefs.ravel()))
-   
-
-    # # fisheye calibration
-    # rms, camera_matrix, dist_coefs, rvecs, tvecs = cv2.fisheye.calibrate(
-    #     obj_points, img_points,
-    #     (w, h), camera_matrix, np.array([0., 0., 0., 0.]),
-    #     None, None,
-    #     cv2.fisheye.CALIB_USE_INTRINSIC_GUESS, (3, 1, 1e-6))
-    # print "RMS:", rms
-    # print "camera matrix:\n", camera_matrix
-    # print "distortion coefficients: ", dist_coefs.ravel()
 
     calibration = {'rms': rms, 'camera_matrix': camera_matrix.tolist(), 'dist_coefs': dist_coefs.tolist() }
-    with open("~/smart_axe/calibration.yaml", 'w') as file:
+    with open("calibration.yaml", 'w') as file:
         yaml.dump(calibration, file)
-
-    ##OUTPUT DIRECTORIES
-    file1 = args.output_dir + "/cameraMatrix.txt"
-    np.savetxt(file1,camera_matrix,delimiter=',')
-    file2 = args.output_dir + "/cameraDistortion.txt"
-    np.savetxt(file2,dist_coefs,delimiter=',')
 
 

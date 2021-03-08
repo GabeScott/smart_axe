@@ -29,13 +29,13 @@ if __name__ == '__main__':
         # K_undistort[0, 0] *= 0.3
         # K_undistort[1, 1] *= 0.3
 
-        with open('~/smart_axe/calibration.yaml') as fr:
+        with open('calibration.yaml') as fr:
             c = yaml.load(fr)
 
         img_und = cv2.undistort(img, np.array(c['camera_matrix']), np.array(c['dist_coefs']),
                                 newCameraMatrix=np.array(c['camera_matrix']))
         # name, ext = os.path.splitext(os.path.basename(fn))
-        cv2.imwrite('test-und.jpeg',img_und)
+        cv2.imwrite('test-fixed.jpeg',img_und)
 
         print('ok')
 
