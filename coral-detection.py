@@ -348,7 +348,7 @@ def transform_by_section(section, boxes):
     dest = SECTION_COORDS[section][1]
     M = cv2.getPerspectiveTransform(np.float32(source),np.float32(dest))
 
-    points_to_transform = np.float32([[[box[0],box[1]]], [[box[0]+3, box[1]+box[3]]]])
+    points_to_transform = np.float32([[[boxes[0],boxes[1]]], [[boxes[0]+3, boxes[1]+boxes[3]]]])
     transformed_points = cv2.perspectiveTransform(points_to_transform, M)
 
     return transformed_points
