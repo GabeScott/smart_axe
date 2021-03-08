@@ -356,8 +356,9 @@ def transform_by_section(section, boxes, num_detected, frame):
     xmax = transformed_points[1][0][0]
     ymax = transformed_points[1][0][1]
 
-    cv2.rectangle(frame, (transformed_points[0][0][0], transformed_points[0][0][1]), (transformed_points[1][0][0], transformed_points[1][0][1]), (255, 0, 0), 2)
     frame = cv2.warpPerspective(frame, M, (640, 640))
+    cv2.rectangle(frame, (transformed_points[0][0][0], transformed_points[0][0][1]), (transformed_points[1][0][0], transformed_points[1][0][1]), (255, 0, 0), 2)
+    
     cv2.imwrite("final-transformation" + str(num_detected) + ".jpg", frame)
 
     return transformed_points
