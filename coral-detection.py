@@ -20,21 +20,19 @@ ADJ_COORDS = 'adj_coords' in sys.argv
 
 LANE_INDEX = 0
 
-DIM = (480, 640)
-DEST_COORDS = [[0,0],[640,0],[0,640],[640,640]]
-SKEW_COORDS = [[34,108],[465,108],[41,544],[461,536]]
-SOURCE_COORDS = []
-
 with open('calibration_coordinates.txt', 'r') as file:
     text = file.readlines()[0]
     SOURCE_COORDS = json.loads(text)
+
+DIM = (480, 640)
+DEST_COORDS = [[0,0],[640,0],[0,640],[640,640]]
 
 num_detected = 0
 num_detected_in_a_row = 0
 
 Object = collections.namedtuple('Object', ['id', 'score', 'bbox'])
 
-model_file = 'smart-axe-edgetpu-skew-adjusted.tflite'
+model_file = 'smart-axe-edgetpu-custom-data.tflite'
 
 interpreter = tflite.Interpreter(model_path=model_file,
         experimental_delegates=[tflite.load_delegate('libedgetpu.so.1')])
@@ -137,15 +135,11 @@ def log_msg_and_time(msg, temp = False):
         print(datetime.utcnow().isoformat(sep=' ', timespec='milliseconds'))
 
 
-def transform_image(x, y, w, h, img, num_detected):
-    M = cv2.getPerspectiveTransform(np.float32(SKEW_COORDS),np.float32(DEST_COORDS))
+def transform_image(x, y, w, h, img):
+    M = cv2.getPerspectiveTransform(np.float32(SOURCE_COORDS),np.float32(DEST_COORDS))
 
-    points_to_transform = np.float32([[[x,y]], [[x+5, y+h]]])
+    points_to_transform = np.float32([[[x,y]], [[x+w/10, y+h]]])
     transformed_points = cv2.perspectiveTransform(points_to_transform, M)
-
-    adjusted_frame = cv2.warpPerspective(img, M, (640,640))
-    cv2.rectangle(adjusted_frame, (transformed_points[0][0][0], transformed_points[0][0][1]), (transformed_points[1][0][0], transformed_points[1][0][1]), (255, 0, 0), 2)
-    cv2.imwrite("final-frames/final-frame"+str(num_detected)+".jpg", adjusted_frame)
 
     return transformed_points
 
@@ -200,13 +194,6 @@ def get_output(interpreter, score_threshold, image_scale=(1.0, 1.0)):
     return [make(i) for i in range(count) if scores[i] >= score_threshold]
 
 
-def adjust_for_skew(frame):
-    M = cv2.getPerspectiveTransform(np.float32(SOURCE_COORDS),np.float32(SKEW_COORDS))
-    adjusted_frame = cv2.warpPerspective(frame, M, (550,640))
-
-    return adjusted_frame
-
-
 def detect_axe(frame, threshold):
     if frame is None:
         log_msg_and_time("EMPTY FRAME RECEIVED")
@@ -215,7 +202,13 @@ def detect_axe(frame, threshold):
     global interpreter
     log_msg_and_time("About To Process Frame")
 
-    frame_fixed = adjust_for_skew(cv2.rotate(frame, cv2.ROTATE_90_COUNTERCLOCKWISE))
+    with open('calibration.yaml') as fr:
+            c = yaml.load(fr)
+
+    frame = cv2.undistort(frame, np.array(c['camera_matrix']), np.array(c['dist_coefs']),
+                                newCameraMatrix=np.array(c['camera_matrix']))
+
+    frame_fixed = cv2.rotate(frame, cv2.ROTATE_90_COUNTERCLOCKWISE)
     cv2.imwrite("frame.jpg", frame_fixed)
 
     image = Image.open("frame.jpg")
@@ -266,18 +259,13 @@ def adjust_y_coord(x, y):
     return new_y
 
 
-def save_bbox(frame, box, num_detected):
-    cv2.rectangle(frame, (box[0], box[1]), (box[0]+box[2], box[1]+box[3]), (255, 0, 0), 2)
-    cv2.imwrite("frames-with-boxes/frame-with-box" + str(num_detected) + ".jpg", frame)
-
-
 def send_hit_to_target(box):
     log_msg_and_time("About To Send Hit")
     x = str(box[0])
     y = str(box[1])
     # x = str(adjust_x_coord(box[0], box[1]))
     # y = str(adjust_y_coord(box[0], box[1]))
-    width = 3#str(box[2]/5.0)
+    width = str(box[2]/5.0)
     height = str(box[3])
 
     data = {'lane':LANE_INDEX,
@@ -330,7 +318,7 @@ while True:
 
             log_msg_and_time("Axe Detected for " + str(MIN_DETECT_FRAMES) + " Frames")
             
-            transformed_points = transform_image(boxes[0], boxes[1], boxes[2], boxes[3], frame, num_detected)
+            transformed_points = transform_image(boxes[0], boxes[1], boxes[2], boxes[3], frame)
 
             print("Detected at: ("+str(transformed_points[0][0][0]) + ", " + str(transformed_points[0][0][1]) + ")", end='')
             print("  Original Coords: ("+str(boxes[0])+", "+str(boxes[1])+")")
@@ -338,10 +326,9 @@ while True:
             if boxes[0] <= 80:
                 print("RESET")
 
-            
+
             points_to_send = [transformed_points[0][0][0], transformed_points[0][0][1], transformed_points[1][0][0]-transformed_points[0][0][0], transformed_points[1][0][1]-transformed_points[0][0][1]]
             send_hit_to_target(points_to_send)
-            save_bbox(frame, boxes, num_detected)
 
             cv2.imwrite("detected"+str(num_detected)+".png", frame)
             num_detected += 1
