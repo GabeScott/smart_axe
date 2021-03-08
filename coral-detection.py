@@ -343,13 +343,23 @@ def send_hit_to_target(box):
         sys.exit(0)
 
 
-def transform_by_section(section, boxes):
+def transform_by_section(section, boxes, num_detected):
     source = SECTION_COORDS[section][0]
     dest = SECTION_COORDS[section][1]
     M = cv2.getPerspectiveTransform(np.float32(source),np.float32(dest))
 
     points_to_transform = np.float32([[[boxes[0],boxes[1]]], [[boxes[0]+3, boxes[1]+boxes[3]]]])
     transformed_points = cv2.perspectiveTransform(points_to_transform, M)
+
+    xmin = transformed_points[0][0][0]
+    ymin = transformed_points[0][0][1]
+    xmax = transformed_points[1][0][0]
+    ymax = transformed_points[1][0][1]
+
+    frame = cv2.imread("final-frame"+str(num_detected)+".jpg")
+    cv2.rectangle(frame, (transformed_points[0][0][0], transformed_points[0][0][1]), (transformed_points[1][0][0], transformed_points[1][0][1]), (255, 0, 0), 2)
+    frame = cv2.warpPerspective(frame, M, (640, 640))
+    cv2.imwrite("final-transformation" + str(num_detected) + ".jpg", frame)
 
     return transformed_points
 
@@ -370,7 +380,7 @@ while True:
             log_msg_and_time("Axe Detected for " + str(MIN_DETECT_FRAMES) + " Frames")
             
             section = get_axe_section(boxes[0], boxes[1], boxes[2], boxes[3], frame, num_detected)
-            transformed_points = transform_by_section(section, boxes)
+            transformed_points = transform_by_section(section, boxes, num_detected)
 
             print("Detected at: ("+str(transformed_points[0][0][0]) + ", " + str(transformed_points[0][0][1]) + ")", end='')
             print("  Original Coords: ("+str(boxes[0])+", "+str(boxes[1])+")")
