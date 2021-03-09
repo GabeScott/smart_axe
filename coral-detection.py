@@ -202,11 +202,11 @@ def detect_axe(frame, threshold):
     global interpreter
     log_msg_and_time("About To Process Frame")
 
-    with open('calibration.yaml') as fr:
-            c = yaml.load(fr)
+    # with open('calibration.yaml') as fr:
+    #         c = yaml.load(fr)
 
-    frame = cv2.undistort(frame, np.array(c['camera_matrix']), np.array(c['dist_coefs']),
-                                newCameraMatrix=np.array(c['camera_matrix']))
+    # frame = cv2.undistort(frame, np.array(c['camera_matrix']), np.array(c['dist_coefs']),
+    #                             newCameraMatrix=np.array(c['camera_matrix']))
 
     frame_fixed = cv2.rotate(frame, cv2.ROTATE_90_COUNTERCLOCKWISE)
     cv2.imwrite("frame.jpg", frame_fixed)
