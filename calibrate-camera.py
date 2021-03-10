@@ -70,9 +70,7 @@ if __name__ == '__main__':
             if image_count==image_goal:
                 break
         if args.debug_dir:
-            img_chess = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
-            cv2.drawChessboardCorners(img_chess, pattern_size, corners, found)
-            cv2.imwrite('pictures/'+str(i) + '.png', img_chess)
+            cv2.imwrite('pictures/'+str(i) + '.png', img)
         if not found:
             print('not found')
             continue
