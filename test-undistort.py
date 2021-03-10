@@ -20,6 +20,7 @@ if __name__ == '__main__':
     for fn in [1]:
         print('processing ...')
         img = cv2.imread('test.jpg')
+        img = cv2.resize(img, (640, 480))
         if img is None:
             print("Failed to load " + str(fn))
             continue

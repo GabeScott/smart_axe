@@ -1,5 +1,7 @@
 import cv2
 import time
+import yaml
+import numpy as np
 
 DIM = (480, 640)
 
@@ -40,6 +42,17 @@ ret, frame = cap.read()
 
 while frame is None:
 	ret, frame = cap.read()
+
+
+with open('calibration.yaml') as fr:
+        c = yaml.load(fr)
+
+
+# frame = cv2.imread('test.jpg')
+# frame = cv2.resize(frame, (640, 480))
+
+frame = cv2.undistort(frame, np.array(c['camera_matrix']), np.array(c['dist_coefs']),
+                                newCameraMatrix=np.array(c['camera_matrix']))
 
 
 frame = cv2.rotate(frame, cv2.ROTATE_90_COUNTERCLOCKWISE)
