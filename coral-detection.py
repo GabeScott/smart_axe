@@ -47,8 +47,8 @@ class ThreadedCamera(object):
     def __init__(self, source = 0):
 
         self.capture = cv2.VideoCapture(source)
-        self.capture.set(cv2.CAP_PROP_FRAME_WIDTH, DIM[1])
-        self.capture.set(cv2.CAP_PROP_FRAME_HEIGHT, DIM[0])
+        self.capture.set(cv2.CAP_PROP_FRAME_WIDTH, DIM[0])
+        self.capture.set(cv2.CAP_PROP_FRAME_HEIGHT, DIM[1])
         self.capture.set(cv2.CAP_PROP_BUFFERSIZE, 1)
         self.capture.set(cv2.CAP_PROP_FPS, 30)
 
