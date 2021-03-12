@@ -9,6 +9,8 @@ import sys
 import collections
 from threading import Thread
 import json
+import yaml
+
 
 MIN_DETECT_FRAMES=1
 MIN_EMPTY_FRAMES=30
