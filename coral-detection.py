@@ -47,8 +47,8 @@ class ThreadedCamera(object):
     def __init__(self, source = 0):
 
         self.capture = cv2.VideoCapture(source)
-        self.capture.set(cv2.CAP_PROP_FRAME_WIDTH, DIM[0])
-        self.capture.set(cv2.CAP_PROP_FRAME_HEIGHT, DIM[1])
+        self.capture.set(cv2.CAP_PROP_FRAME_WIDTH, DIM[1])
+        self.capture.set(cv2.CAP_PROP_FRAME_HEIGHT, DIM[0])
         self.capture.set(cv2.CAP_PROP_BUFFERSIZE, 1)
         self.capture.set(cv2.CAP_PROP_FPS, 30)
 
@@ -207,7 +207,9 @@ def detect_axe(frame, threshold):
     with open('calibration.yaml') as fr:
             c = yaml.load(fr)
 
-    frame = cv2.undistort(frame, np.array(c['camera_matrix']), np.array(c['dist_coefs']),
+    frame_fixed=cv2.resize(frame, (640, 480)) 
+
+    frame_fixed = cv2.undistort(frame_fixed, np.array(c['camera_matrix']), np.array(c['dist_coefs']),
                                 newCameraMatrix=np.array(c['camera_matrix']))
 
     frame_fixed = cv2.rotate(frame, cv2.ROTATE_90_COUNTERCLOCKWISE)
