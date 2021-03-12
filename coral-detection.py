@@ -214,6 +214,7 @@ def detect_axe(frame, threshold):
 
     frame_fixed = cv2.rotate(frame, cv2.ROTATE_90_COUNTERCLOCKWISE)
     cv2.imwrite("frame.jpg", frame_fixed)
+    cv2.imwrite("frame-original.jpg", frame)
 
     image = Image.open("frame.jpg")
     scale = set_input(interpreter, image.size, lambda size: image.resize(size, Image.ANTIALIAS))
