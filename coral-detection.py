@@ -1,5 +1,6 @@
 from socketIO_client_nexus import SocketIO
-import tflite_runtime.interpreter as tflite
+#import tflite_runtime.interpreter as tflite
+from pycoral.utils.edgetpu import make_interpreter
 from PIL import Image
 import cv2
 import numpy as np
@@ -10,6 +11,8 @@ import collections
 from threading import Thread
 import json
 import yaml
+from pycoral.adapters import classify
+from pycoral.adapters import common
 
 
 MIN_DETECT_FRAMES=1
@@ -20,14 +23,19 @@ THROW_ONE_AXE = 'one_throw' in sys.argv
 TEST_LINE = 'test' in sys.argv
 ADJ_COORDS = 'adj_coords' in sys.argv
 
-LANE_INDEX = 0
+LANE_INDEX = 5
 
-with open('calibration_coordinates.txt', 'r') as file:
+CAMERA_SOURCE = 5
+
+with open('calibration/calibration_coordinates-cam-5.txt', 'r') as file:
     text = file.readlines()[0]
     SOURCE_COORDS = json.loads(text)
 
-DIM = (480, 640)
-DEST_COORDS = [[0,0],[640,0],[0,640],[640,640]]
+#DIM = (480, 640)
+DEST_COORDS = [[0,0],[600,0],[0,600],[600,600]]
+WARP_COORDS = [[29,241],[993,493],[85, 1853],[965, 1493]]
+
+DIM = (720, 1280)
 
 num_detected = 0
 num_detected_in_a_row = 0
@@ -35,16 +43,16 @@ num_detected_in_a_row = 0
 Object = collections.namedtuple('Object', ['id', 'score', 'bbox'])
 
 model_file = 'smart-axe-edgetpu-custom-data.tflite'
+#model_file = 'smart-axe-edgetpu-upper-camera.tflite'
 
-interpreter = tflite.Interpreter(model_path=model_file,
-        experimental_delegates=[tflite.load_delegate('libedgetpu.so.1')])
+interpreter = make_interpreter(model_file)
 
 interpreter.allocate_tensors()
 
 HIT_SOCKET = SocketIO('http://34.227.251.88', 3000)
 
 class ThreadedCamera(object):
-    def __init__(self, source = 0):
+    def __init__(self, source = CAMERA_SOURCE):
 
         self.capture = cv2.VideoCapture(source)
         self.capture.set(cv2.CAP_PROP_FRAME_WIDTH, DIM[1])
@@ -204,18 +212,23 @@ def detect_axe(frame, threshold):
     global interpreter
     log_msg_and_time("About To Process Frame")
 
-    with open('calibration.yaml') as fr:
-            c = yaml.load(fr)
+    #with open('calibration.yaml') as fr:
+   #         c = yaml.load(fr)
 
-    frame_fixed=cv2.resize(frame, (640, 480)) 
-
-    frame_fixed = cv2.undistort(frame_fixed, np.array(c['camera_matrix']), np.array(c['dist_coefs']),
-                                newCameraMatrix=np.array(c['camera_matrix']))
-
-    frame_fixed = cv2.rotate(frame, cv2.ROTATE_90_COUNTERCLOCKWISE)
-    cv2.imwrite("frame.jpg", frame_fixed)
+    
     cv2.imwrite("frame-original.jpg", frame)
 
+    #frame_fixed = frame[120:1000, 700:1500]
+
+    #frame_fixed = cv2.undistort(frame_fixed, np.array(c['camera_matrix']), np.array(c['dist_coefs']),
+    #                            newCameraMatrix=np.array(c['camera_matrix']))
+
+    frame_fixed = cv2.rotate(frame, cv2.ROTATE_90_CLOCKWISE)
+    frame_fixed = cv2.convertScaleAbs(frame_fixed, alpha=1.5, beta=0)
+    #frame_fixed = cv2.rotate(frame_fixed, cv2.ROTATE_90_COUNTERCLOCKWISE)
+    #M = cv2.getPerspectiveTransform(np.float32(WARP_COORDS),np.float32(DEST_COORDS))
+    #frame_fixed = cv2.warpPerspective(frame_fixed, M, (600,600))
+    cv2.imwrite("frame.jpg", frame_fixed)
     image = Image.open("frame.jpg")
     scale = set_input(interpreter, image.size, lambda size: image.resize(size, Image.ANTIALIAS))
 
@@ -224,6 +237,7 @@ def detect_axe(frame, threshold):
     log_msg_and_time("Finished Invoking")
 
     objs = get_output(interpreter, threshold, scale)
+    print(objs)
 
     log_msg_and_time("Finished Processing Frame")
 
@@ -266,11 +280,11 @@ def adjust_y_coord(x, y):
 
 def send_hit_to_target(box):
     log_msg_and_time("About To Send Hit")
-    x = str(box[0])
+    x = str(box[0]-box[2]*2.5)
     y = str(box[1])
     # x = str(adjust_x_coord(box[0], box[1]))
     # y = str(adjust_y_coord(box[0], box[1]))
-    width = str(box[2]/5.0)
+    width = str(box[2]*5)
     height = str(box[3])
 
     data = {'lane':LANE_INDEX,
@@ -311,10 +325,10 @@ def send_hit_to_target(box):
 streamer = ThreadedCamera()
 
 while True:
-    time.sleep(0.15)
+    time.sleep(0.01)
     log_msg_and_time("Read Frame")
 
-    boxes, frame = detect_axe(streamer.grab_frame(), .1)
+    boxes, frame = detect_axe(streamer.grab_frame(), .6)
 
     if len(boxes) > 0:
         log_msg_and_time("Axe Detected, waiting for min num of detections")
@@ -334,7 +348,7 @@ while True:
 
             points_to_send = [transformed_points[0][0][0], transformed_points[0][0][1], transformed_points[1][0][0]-transformed_points[0][0][0], transformed_points[1][0][1]-transformed_points[0][0][1]]
             send_hit_to_target(points_to_send)
-
+            cv2.rectangle(frame, (boxes[0], boxes[1]), (boxes[0]+boxes[2], boxes[1]+boxes[3]), (0, 255, 0), 2)
             cv2.imwrite("detected"+str(num_detected)+".png", frame)
             num_detected += 1
             num_detected_in_a_row = 0

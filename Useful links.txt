@@ -1,0 +1,2 @@
+https://coral.ai/docs/accelerator/get-started/
+https://coral.ai/docs/edgetpu/tflite-python/#update-existing-tf-lite-code-for-the-edge-tpu

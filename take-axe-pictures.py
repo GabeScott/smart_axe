@@ -1,13 +1,14 @@
 import cv2
 from threading import Thread
+import time
 
-DIM = (480, 640)
+DIM = (1080, 1920)
 DEST_COORDS = [[0,0],[640,0],[0,640],[640,640]]
 
-num_detected = 0
+num_detected = 1193
 
 class ThreadedCamera(object):
-    def __init__(self, source = 0):
+    def __init__(self, source = 5):
 
         self.capture = cv2.VideoCapture(source)
         self.capture.set(cv2.CAP_PROP_FRAME_WIDTH, DIM[1])
@@ -39,9 +40,10 @@ while True:
     while frame is None:
         frame = streamer.grab_frame()
 
-    input("Press enter to take a picture")
+    #input("Press enter to take a picture")
+    #time.sleep(5)
 
     frame = streamer.grab_frame()
     num_detected += 1
-    frame = cv2.rotate(frame, cv2.ROTATE_90_COUNTERCLOCKWISE)
-    cv2.imwrite("axe"+str(num_detected) + ".jpg", frame)
+    frame = cv2.rotate(frame, cv2.ROTATE_90_CLOCKWISE)
+    cv2.imwrite("camera5.jpg", frame)

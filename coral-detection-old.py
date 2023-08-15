@@ -1,6 +1,6 @@
-from pycoral.utils import edgetpu
-from pycoral.adapters import common
-from pycoral.adapters import detect
+# from pycoral.utils import edgetpu
+# from pycoral.adapters import common
+# from pycoral.adapters import detect
 from socketIO_client_nexus import SocketIO
 import tflite_runtime.interpreter as tflite
 from PIL import Image
@@ -35,7 +35,7 @@ DEST_COORDS = [[0,0],[640,0],[0,640],[640,640]]
 
 FPS_LIMIT = 30
 
-cap = cv2.VideoCapture(0)
+cap = cv2.VideoCapture("IMG_3331-output.avi")
 cap.set(cv2.CAP_PROP_FRAME_WIDTH, DIM[1])
 cap.set(cv2.CAP_PROP_FRAME_HEIGHT, DIM[0])
 
@@ -45,8 +45,8 @@ num_empty_in_a_row = 0
 
 model_file = 'smart_axe.tflite'
 
-interpreter = tflite.Interpreter(model_path="smart_axe.tflite",
-        experimental_delegates=[tflite.load_delegate('libedgetpu.so.1')])
+interpreter = tflite.Interpreter(model_path="smart_axe.tflite")#,
+        #experimental_delegates=[tflite.load_delegate('libedgetpu.so.1')])
 interpreter.allocate_tensors()
 
 HIT_SOCKET = SocketIO('http://34.227.251.88', 3000)
@@ -93,6 +93,7 @@ def detect_axe(frame):
     # Test the model on random input data.
     input_shape = input_details[0]['shape']
     frame_fixed = cv2.rotate(frame, cv2.ROTATE_90_COUNTERCLOCKWISE)
+    frame_fixed = cv2.rotate(frame_fixed, cv2.ROTATE_90_CLOCKWISE)
     # image_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
     frame_fixed = cv2.resize(frame_fixed, (320, 320))
 
@@ -125,11 +126,14 @@ def detect_axe(frame):
             ymax=np.minimum(1.0, ymax)*320
 
             orig_points = get_original_points(xmin, ymin, xmax-xmin, ymax-ymin)
+            print(orig_points)
+            cv2.imwrite("frame-video-found"+str(num_detected)+".jpg", frame_fixed)
 
             log_msg_and_time("Finished Processing Frame")
             return [orig_points[0][0][0], orig_points[0][0][1], orig_points[1][0][0]-orig_points[0][0][0], orig_points[1][0][1]-orig_points[0][0][1]], frame_fixed
 
     log_msg_and_time("Finished Processing Frame")
+    
     return [], frame_fixed
 
 
